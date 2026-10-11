@@ -25,6 +25,11 @@
 
 ## 三条发布渠道与命令
 
+> **顺序有硬约束：先建仓推送，再发 npm。** npm 页面渲染的是 tarball 里的 README，而 README 顶部那张编排图用的是
+> `https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/...` 绝对地址
+> （相对路径在 npm 页面上拿不到）。仓库没先公开，npm 页面的图就是坏的。
+> `screenshots.json` 也指向仓库内的图，同理。
+
 ### 1. GitHub 建仓 + 推送
 
 ```sh

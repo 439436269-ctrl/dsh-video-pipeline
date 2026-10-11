@@ -2,6 +2,10 @@
 
 把一条**跑通过的真实短视频生产流水线**作为内置 skill 装进 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：1 个编排 skill + 18 个原子 skill，共 19 个技能，随插件一起出现在 agent 的技能目录里。
 
+![流水线编排图](https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/skills/tangshi-pipeline/references/orchestration-flow.png)
+
+> 图：`tangshi-pipeline` 的编排流程图——左列是编排层（选题 → 门①报价 → 配音/素材/成片调度 → 门②发布确认 → 并行发布 → 回写），右列是被调用的原子 skill。素材生产分「图片运镜」与「Seedance t2v」两条路线，在 `video-compose` 汇合、可按镜头混用。
+
 装完不需要往 `~/.agents/skills` 或 `~/.dsh/skills` 复制任何文件——插件自己注册一个 skill provider，把包内的 `skills/` 目录提供给 `ctx.skills`。
 
 ## 这个插件做了什么
