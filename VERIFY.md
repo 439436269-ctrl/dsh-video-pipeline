@@ -140,6 +140,24 @@ $ node tools/preflight.mjs
 
 这是只读命令：不推送、不发布。本地问题非零退出；缺凭据只单独列出。凭据探测禁掉了交互提示与 GCM 弹窗（否则会挂住等人工输入）。**不进 CI**——它要探网络、本机凭据库与本地 git。
 
+## 4d. 跨 skill 引用审计（包完整性）
+
+包内 skill 会互相点名。在作者机器上所有本地 skill 都存在，所以「引用了一个没打进包的 skill」这件事**在作者机器上永远看不出来**，装到别人机器上才变成悬空引用。为此在导入器里加了一节审计：拿本机 skill 名单去比包内名单，列出所有「提到了但没进包」的 skill。
+
+首轮结果：19 个包内 skill 中只有一处 —— `bilibili-upload` 与 `quad-platform-publish` 三处把 `paper-bilibili-uploader` 当「配套 skill」，并且 `bilibili-upload/SKILL.md` 里硬编码了 `~\.agents\skills\paper-bilibili-uploader\scripts\upload.py`。
+
+它来自第三方仓库（`yhbcode000/paper-share-skills`），不在已确认的打包范围内，且还需单独核许可 → **不擅自扩范围，改为把文档说准**：新增 `DOC_FIXES`（与脱敏分开计数，不删任何隐私内容，只修正对安装者不成立的表述）把 5 处标注为「本包未含」，README 已知边界写明，报告保留该节作为后续回归。
+
+```
+合计：保留 48，脱敏 37，准确性改写 5，剔除 170，自撰 1，模板 4
+⚠ 正文提到未打进包的 skill（3 处）：装到别人机器上它们不存在，须标明为外部或补进包
+     ?  quad-platform-publish/SKILL.md  提到  paper-bilibili-uploader
+     ?  bilibili-upload/SKILL.md  提到  paper-bilibili-uploader
+     ?  bilibili-upload/references/pitfalls.md  提到  paper-bilibili-uploader
+```
+
+改写后重新打包、remove+add 重装进 `video-tgz`，确认标注到达了安装副本。
+
 ## 5. 发布物检查（P7 前置）
 
 ```
