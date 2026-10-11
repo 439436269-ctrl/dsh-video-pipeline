@@ -158,6 +158,58 @@ $ node tools/preflight.mjs
 
 改写后重新打包、remove+add 重装进 `video-tgz`，确认标注到达了安装副本。
 
+## 4e. 干净安装机环境（只有包内 skill）
+
+前面所有测试都跑在作者本机——那里有 96 个本地 skill。真实用户只有包内 19 个，所以另跑一次：把 agents 根指到一个空目录，其余根确认不存在。
+
+```
+$env:DSH_AGENTS_HOME = <空目录>        # 本机 skills 从此不参与目录合并
+~/.dsh/skills 不存在   D:\codes\.agents 不存在   D:\codes\.dsh 不存在
+
+$ dsh --profile video-tgz "把技能目录里所有 skill 的 name 逐行列出来，最后输出 TOTAL=N"
+ark-agent-plan-image  ark-seedance-video  ark-seedream-image  bilibili-upload  chinese-tts
+douyin-publish  dreamina-canvas-cli  feishu-bitable  image-to-video  media-verify
+multi-platform-publish-orchestrator  quad-platform-publish  tangshi-data-review
+tangshi-pipeline  tencent-upload  video-compose  video-cover  video-pipeline
+xiaohongshu-skills
+TOTAL=19
+```
+
+**目录正好是包内那 19 个**，一个不多一个不少 → 插件自给自足，不依赖作者本机的 skill 库；同时这补上了第 4c 节 rank 结论的另一半：没有 rank 500 的竞争者时，内置副本（rank 600）正常胜出并被加载。
+
+## 4f. 配置面（占位符覆盖）
+
+README 与 `cordis.patch.yml` 都写了 `config.placeholders` 的用法，但此前从未端到端验证过。在 profile 层加一段覆盖后重跑：
+
+```yaml
+- id: dsh-video-pipeline
+  config:
+    placeholders:
+      NAS_HOST: TEST-NAS-HOST-12345
+      FEISHU_TABLE: tblOVERRIDDEN
+      WORKSPACE: C:\verify\workspace
+```
+
+```
+$ dsh --profile video-tgz --dump-config | grep -A6 dsh-video-pipeline
+> # == dsh-video-pipeline, patched by ...\video-tgz\cordis.patch.yml
+- id: dsh-video-pipeline
+  name: dsh-video-pipeline
+    config:
+      placeholders:
+        NAS_HOST: TEST-NAS-HOST-12345
+        FEISHU_TABLE: tblOVERRIDDEN
+        WORKSPACE: C:\verify\workspace
+stderr 空
+
+$ dsh --profile video-tgz "加载 video-pipeline，报出占位符表里 NAS_HOST / WORKSPACE / FEISHU_TABLE 的实际取值"
+NAS_HOST = TEST-NAS-HOST-12345
+WORKSPACE = C:\verify\workspace
+FEISHU_TABLE = tblOVERRIDDEN
+```
+
+配置从 patch 层 → 宿主 → 插件 → 正文替换全链路生效。验证后已把该 profile 的 patch 恢复为 `[]`。
+
 ## 5. 发布物检查（P7 前置）
 
 ```
@@ -221,5 +273,7 @@ stderr: 0 字符
   本机已建本地 git 仓库并完成首次提交（`main`，109 文件），发布坐标与命令见 `PUBLISH.md`。
 
 - **发布链路未在真实平台跑过**：本包只提供 skill，不含可离线执行的生产流水线；`quad-platform-publish` 等 skill 的执行需要平台凭据，未在本包内验证。
-- **历史复盘文档保留了真实运营数字**：`tangshi-pipeline/references/data-review-*.md` 里的方法论与结论保留，具体播放数字也保留了（按「剥离真实播放数据 **JSON**」的口径执行）。对应数据文件未随包。若需连数字一并剥离，改 `tools/scrub-rules.mjs` 后重跑导入即可。
+- **历史复盘文档保留了真实运营数字**：`tangshi-pipeline/references/data-review-*.md` 里的方法论与结论保留，具体播放数字也保留了（按「剥离真实播放数据 **JSON**」的口径执行）。对应数据文件未随包。
+
+  2026-10-11 核查过这些数字是否本来就公开：作者的公开作品集（`439436269-ctrl.github.io/portfolio`，仓库 `439436269-ctrl/portfolio`，desc 明确写「AI 短剧」）**公开了该短剧项目，并公开链接到 `https://www.bilibili.com/video/BV1Aiaj6vEkw`（EP01 读诗版）**，但页面数据（`assets/data.js`）里**没有任何播放量数字**。结论：项目与至少一条作品是公开的，播放数字不是。当前口径（留方法论与数字、剥离数据文件）是作者已批准的方案；若要连数字一起剥离，改 `tools/scrub-rules.mjs` 后重跑导入即可。
 - 部分脚本引用的输入（`posts.json`、`*-stats.json`、`dy_works_all.json`）需先跑采集脚本产出；`tools/import-report.txt` 列出了全部这类引用。

@@ -119,7 +119,7 @@ dsh plugin --profile web remove dsh-video-pipeline
 ### 已知边界
 
 - 部分脚本的**输入**是采集脚本自己写出的产物（`posts.json`、`*-stats.json`、`dy_works_all.json`），首次运行前并不存在——先跑采集再跑分析。`tools/import-report.txt` 列出了全部这类引用。
-- 历史复盘文档（`tangshi-pipeline/references/data-review-*.md`）保留了**方法论与经验结论**，其中的具体数字来自原作者的真实运营，对应的数据文件未随包提供。
+- 历史复盘文档（`tangshi-pipeline/references/data-review-*.md`）保留了**方法论与经验结论**；其中的具体播放数字来自原作者的真实运营，对应的数据文件未随包。（作者的公开作品集公开了这个短剧项目与一条 EP01 链接，但没有公开播放量；若要连数字一并剥离，改 `tools/scrub-rules.mjs` 后重跑导入。）
 - `xiaohongshu-skills` 是第三方 MIT 代码；上游 README（含赞助位与作者联系方式）未随包。
 - **有一处正文提到本包未含的外部 skill**：`bilibili-upload` 的「论文视频投稿」路径依赖外部 skill `paper-bilibili-uploader`（来自第三方 `yhbcode000/paper-share-skills`）。本包不含它，相关章节已标明为外部；B 站投稿引擎 `biliup` 本身已包含。导入报告里会列出所有这类「提到但未打进包」的 skill（`tools/import-report.txt`）。
 

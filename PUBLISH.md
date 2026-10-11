@@ -69,3 +69,5 @@ Remove-Item $rc                                             # 立刻删
 #   data/plugins/439436269-ctrl__dsh-video-pipeline.yml
 # 再给 awesome-dsh-plugin/awesome-dsh-plugin 提 PR（一个 PR 最多 3 条）。
 ```
+
+**加速点**：账号 `439436269-ctrl` 下**已经有 `awesome-dsh-plugin` 的 fork**（2026-10-11 实测），所以第 3 步可以跳过 fork，直接在已有 fork 上开分支写文件、再开 PR。作者另有 5 个已发布的 DSH 插件（`dsh-zspace` / `dsh-piano` / `dsh-scroll-piano` / `dsh-session-path` / `dsh-pinned-sessions`），发布流程已跑通过。
