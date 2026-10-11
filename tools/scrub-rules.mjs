@@ -272,6 +272,32 @@ export const TEXT_EXTENSIONS = new Set([
 ]);
 
 /**
+ * Extension-less files that are still text. Missing this list is how a
+ * `LICENSE` gets treated as a binary blob: it is then copied verbatim, keeps
+ * CRLF, and — worse — is skipped by the residual scan and the syntax/line-ending
+ * checks that key off {@link TEXT_EXTENSIONS}.
+ */
+export const TEXT_FILENAMES = new Set([
+  'LICENSE', 'LICENCE', 'NOTICE', 'README', 'CHANGELOG', 'AUTHORS',
+  'Makefile', 'Dockerfile', '.gitignore', '.gitattributes', '.npmignore',
+  // `extname('.gitkeep')` is '' in Node, so dotfiles need naming explicitly.
+  '.gitkeep', '.keep',
+]);
+
+/**
+ * Return whether a path should be handled as text.
+ * @param {string} path - POSIX-style relative path.
+ * @returns {boolean} whether the file is text.
+ */
+export function isTextPath(path) {
+  const segments = path.split('/');
+  const name = segments[segments.length - 1];
+  const dot = name.lastIndexOf('.');
+  const ext = dot > 0 ? name.slice(dot).toLowerCase() : '';
+  return TEXT_EXTENSIONS.has(ext) || TEXT_FILENAMES.has(name);
+}
+
+/**
  * Apply the scrub rules to one text file.
  * @param {string} text - file contents.
  * @returns {{ text: string, applied: string[] }} scrubbed text and the rule labels that fired.

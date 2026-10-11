@@ -33,6 +33,8 @@ exit 0
 
 还有一次是**门自身**的可移植性缺陷（加 CI 时暴露）：`.py` 的语法检查原本写死 `python`，在只有 `python3` 的机器（如 ubuntu CI runner）上会 `ENOENT`，被当成「语法失败」误报红灯。已改为先探测 `PYTHON` → `python3` → `python`，都不可用则如实报告「跳过」而不是失败。
 
+另一个同类盲点：**无扩展名的文本文件**（`LICENSE`、`.gitkeep`）原本被判成二进制原样复制，于是既逃过残留扫描，也逃过行尾检查——「包内文本行尾统一为 LF」这句话当时并不成立（`skills/xiaohongshu-skills/LICENSE` 仍是 CRLF）。已补 `TEXT_FILENAMES` 与 `isTextPath()`，两处检查共用同一判据。
+
 ## 2. 单测（P3）
 
 ```

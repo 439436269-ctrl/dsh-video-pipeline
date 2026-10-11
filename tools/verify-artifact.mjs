@@ -21,7 +21,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } 
 import { tmpdir } from 'node:os';
 import { dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { SKILLS, TEXT_EXTENSIONS } from './scrub-rules.mjs';
+import { SKILLS, isTextPath } from './scrub-rules.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -107,7 +107,7 @@ if (!existsSync(extracted)) {
   // machine that packed it.
   const crlf = [];
   for (const rel of paths) {
-    if (!TEXT_EXTENSIONS.has(extname(rel).toLowerCase())) continue;
+    if (!isTextPath(rel)) continue;
     const body = readFileSync(join(extracted, rel), 'utf8');
     if (body.includes('\r\n')) crlf.push(rel);
   }

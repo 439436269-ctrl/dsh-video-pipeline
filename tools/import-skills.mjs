@@ -27,8 +27,8 @@ import { fileURLToPath } from 'node:url';
 import {
   SKILLS,
   TEMPLATES,
-  TEXT_EXTENSIONS,
   dropReason,
+  isTextPath,
   residualFindings,
   scrubText,
 } from './scrub-rules.mjs';
@@ -91,7 +91,7 @@ function plan() {
         continue;
       }
       const ext = extname(rel).toLowerCase();
-      if (!TEXT_EXTENSIONS.has(ext)) {
+      if (!isTextPath(rel)) {
         files.push({
           skill: skill.name,
           rel,
@@ -325,7 +325,7 @@ function verify() {
     const full = join(TARGET, rel);
     scanned += 1;
     const ext = extname(rel).toLowerCase();
-    if (!TEXT_EXTENSIONS.has(ext)) continue;
+    if (!isTextPath(rel)) continue;
     const text = readFileSync(full, 'utf8');
     for (const what of residualFindings(text)) {
       findings.push({ file: rel, what });
