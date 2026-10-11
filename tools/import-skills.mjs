@@ -55,6 +55,21 @@ function walk(root, current = root, out = []) {
 }
 
 /**
+ * Normalise line endings to LF.
+ *
+ * The source skills live on Windows and carry CRLF. Publishing that as-is makes
+ * the tarball depend on the packaging machine's line endings, which shows up
+ * later as "local tgz differs from the registry tarball" during read-back
+ * verification even though nothing changed. LF also keeps shell examples honest
+ * on Linux and macOS.
+ * @param {string} text - file contents.
+ * @returns {string} text with LF endings only.
+ */
+function normalizeEol(text) {
+  return text.replace(/\r\n?/g, '\n');
+}
+
+/**
  * Collect the import plan for every bundled skill without touching the disk.
  * @returns {{ files: object[], templates: object[], missing: string[] }} planned file actions,
  *   structure-only examples that stand in for dropped real data, and missing skills.
@@ -88,15 +103,16 @@ function plan() {
       }
       const raw = readFileSync(absolute, 'utf8');
       const { text, applied } = scrubText(raw);
+      const normalized = normalizeEol(text);
       files.push({
         skill: skill.name,
         rel,
         action: applied.length ? 'scrub' : 'copy',
         applied,
         reason: applied.length ? `脱敏：${applied.join('、')}` : undefined,
-        bytes: Buffer.byteLength(text),
+        bytes: Buffer.byteLength(normalized),
         origin: absolute,
-        text,
+        text: normalized,
       });
     }
   }
@@ -111,15 +127,16 @@ function plan() {
       const [skillName, ...rest] = segments;
       const origin = join(AUTHORED, rel);
       const { text, applied } = scrubText(readFileSync(origin, 'utf8'));
+      const normalized = normalizeEol(text);
       files.push({
         skill: skillName,
         rel: rest.join('/'),
         action: 'authored',
         applied,
         reason: applied.length ? `脱敏：${applied.join('、')}` : '本包自撰',
-        bytes: Buffer.byteLength(text),
+        bytes: Buffer.byteLength(normalized),
         origin,
-        text,
+        text: normalized,
       });
     }
   }
@@ -151,7 +168,8 @@ function report({ files, templates, dangling, missing }) {
   }
   console.log(`source: ${SOURCE}`);
   console.log(`authored: ${AUTHORED}`);
-  console.log(`target: ${TARGET}\n`);
+  console.log(`target: ${TARGET}`);
+  console.log('文本文件行尾统一为 LF（源在 Windows 上带 CRLF，不归一会让 tarball 随打包机器漂移）\n');
   let dropped = 0;
   let scrubbed = 0;
   let kept = 0;

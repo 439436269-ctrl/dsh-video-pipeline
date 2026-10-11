@@ -19,8 +19,9 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { SKILLS, TEXT_EXTENSIONS } from './scrub-rules.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
@@ -78,7 +79,6 @@ for (const rel of libFiles) {
 ok(`lib 内 ${libFiles.length} 个模块的相对 import 全部落在包内`);
 
 // Every bundled skill must ship its SKILL.md.
-const { SKILLS } = await import(pathToFileURL(join(ROOT, 'tools', 'scrub-rules.mjs')).href);
 const missingSkill = [];
 for (const skill of SKILLS) {
   if (!paths.includes(`skills/${skill.name}/SKILL.md`)) missingSkill.push(skill.name);
@@ -102,6 +102,18 @@ if (!existsSync(extracted)) {
     .sort();
   ok(`解包得到 ${skillDirs.length} 个 skill 目录`);
 
+  // Line endings must be LF in the artifact: CRLF in a shipped shell script
+  // breaks on Linux and macOS, and mixed endings make the tarball depend on the
+  // machine that packed it.
+  const crlf = [];
+  for (const rel of paths) {
+    if (!TEXT_EXTENSIONS.has(extname(rel).toLowerCase())) continue;
+    const body = readFileSync(join(extracted, rel), 'utf8');
+    if (body.includes('\r\n')) crlf.push(rel);
+  }
+  if (crlf.length) bad(`包内有 ${crlf.length} 个文本文件是 CRLF 行尾（如 ${crlf[0]}）`);
+  else ok('包内文本文件行尾统一为 LF');
+
   // Import the extracted module, not the source tree: this is the code that
   // would actually run on an installer's machine.
   const mod = await import(pathToFileURL(join(extracted, 'lib', 'index.js')).href);
@@ -113,8 +125,7 @@ if (!existsSync(extracted)) {
 
   let captured;
   const ctx = { inject: (deps, fn) => fn({ skills: { registerProvider: (create) => { captured = create({ signal: undefined, invalidate: () => {} }); } } }) };
-  mod.apply(ctx, {});
-  if (!captured) {
+  mod.apply(ctx, {});  if (!captured) {
     bad('apply() 没有注册 provider');
   } else {
     const listed = await captured.list({});
