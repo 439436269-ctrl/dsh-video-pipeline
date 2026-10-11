@@ -1,0 +1,65 @@
+{
+  "name": "dsh-video-pipeline",
+  "version": "0.1.0",
+  "description": "短视频流水线 skill 包：把一条「编排 skill + 原子 skill」的 AI 短剧生产流水线（TTS 读音校正、文生图/文生视频、图片运镜、成片合成、封面、成片核验、多平台发布）作为内置 skill 装进 DeepSeek Harness，装完即出现在 agent 的技能目录里。Bundled skill pack for DSH: one orchestration skill plus its atomic production skills, shipped inside the plugin and served through a built-in skill provider.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "skill",
+    "skills",
+    "video",
+    "ffmpeg",
+    "tts",
+    "short-drama",
+    "pipeline",
+    "seedance",
+    "seedream"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/**/*.js",
+    "skills/**",
+    "cordis.patch.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "THIRD-PARTY-NOTICES.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "test": "node test/provider.test.mjs",
+    "check": "node --check lib/index.js && node --check lib/provider.js && node --check lib/frontmatter.js && node --check lib/placeholders.js",
+    "import:audit": "node tools/import-skills.mjs --audit",
+    "import:write": "node tools/import-skills.mjs --write",
+    "privacy-gate": "node tools/import-skills.mjs --verify",
+    "verify:artifact": "node tools/verify-artifact.mjs"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "vfvrpq",
+    "url": "https://github.com/439436269-ctrl"
+  },
+  "homepage": "https://github.com/439436269-ctrl/dsh-video-pipeline",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/439436269-ctrl/dsh-video-pipeline.git"
+  },
+  "bugs": {
+    "url": "https://github.com/439436269-ctrl/dsh-video-pipeline/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

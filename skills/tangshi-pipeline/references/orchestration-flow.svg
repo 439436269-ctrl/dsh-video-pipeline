@@ -1,0 +1,127 @@
+<svg viewBox="0 0 680 900" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#57606a"/>
+    </marker>
+    <marker id="arD" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#8b949e"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="900" fill="#fafbfc"/>
+  <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="500" fill="#1a1a1a">编排层跑批流程：调度 + 确认门（左列）→ 调用原子能力（右列）</text>
+
+  <!-- legend -->
+  <rect x="70" y="38" width="14" height="14" rx="3" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="90" y="50" font-size="11" fill="#57606a">编排调度</text>
+  <rect x="175" y="38" width="14" height="14" rx="3" fill="#fff4ce" stroke="#d97706"/>
+  <text x="195" y="50" font-size="11" fill="#92400e">确认门（用户点头）</text>
+  <rect x="330" y="38" width="14" height="14" rx="3" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="350" y="50" font-size="11" fill="#14532d">原子能力</text>
+  <rect x="430" y="38" width="14" height="14" rx="3" fill="#e8f0fe" stroke="#2563eb"/>
+  <text x="450" y="50" font-size="11" fill="#1d4ed8">平台 skill（4 并行）</text>
+
+  <text x="173" y="76" text-anchor="middle" font-size="11" fill="#8b949e">编排层（主 agent / skill 总控）</text>
+  <text x="500" y="76" text-anchor="middle" font-size="11" fill="#8b949e">原子能力层（被调用，不反向依赖编排）</text>
+
+  <!-- s1 选题 -->
+  <rect x="48" y="88" width="250" height="44" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="173" y="111" text-anchor="middle" font-size="13" fill="#1a1a1a">选题 · 文案 · 分镜</text>
+
+  <!-- gate1 -->
+  <rect x="48" y="160" width="250" height="52" rx="8" fill="#fff4ce" stroke="#d97706" stroke-dasharray="5 3"/>
+  <text x="173" y="181" text-anchor="middle" font-size="13" font-weight="500" fill="#92400e">◇ 确认门① 文案定稿</text>
+  <text x="173" y="200" text-anchor="middle" font-size="11" fill="#92400e">花钱报量：图 X 张 · 视频 Y 秒 ≈ ¥Z</text>
+
+  <!-- sT 配音调度 -->
+  <rect x="48" y="244" width="250" height="48" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="173" y="264" text-anchor="middle" font-size="13" fill="#1a1a1a">调度：TTS 配音</text>
+  <text x="173" y="282" text-anchor="middle" font-size="11" fill="#57606a">先过读音校正，字幕仍用原文</text>
+
+  <!-- s3 素材调度 -->
+  <rect x="48" y="330" width="250" height="48" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="173" y="350" text-anchor="middle" font-size="13" fill="#1a1a1a">调度：素材生产（出镜头）</text>
+  <text x="173" y="368" text-anchor="middle" font-size="11" fill="#57606a">两路线二选一，可按镜头混用</text>
+
+  <!-- R0 chinese-tts -->
+  <rect x="340" y="246" width="320" height="44" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="500" y="273" text-anchor="middle" font-size="12" fill="#14532d">chinese-tts · 读音校正 → TTS 配音</text>
+
+  <!-- route captions -->
+  <text x="415" y="318" text-anchor="middle" font-size="11" fill="#8b949e">路线① 图片运镜 EP01-10</text>
+  <text x="582" y="318" text-anchor="middle" font-size="11" fill="#8b949e">路线② t2v 直出 EP11+</text>
+
+  <!-- A route -->
+  <rect x="340" y="330" width="150" height="48" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="415" y="352" text-anchor="middle" font-size="10" fill="#14532d">ark-agent-plan-image</text>
+  <text x="415" y="370" text-anchor="middle" font-size="11" fill="#14532d">场景图</text>
+  <line x1="415" y1="378" x2="415" y2="392" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="340" y="394" width="150" height="48" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="415" y="416" text-anchor="middle" font-size="11" fill="#14532d">image-to-video</text>
+  <text x="415" y="434" text-anchor="middle" font-size="10.5" fill="#14532d">zoompan 运镜镜头</text>
+
+  <!-- B route -->
+  <rect x="505" y="330" width="155" height="48" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="582" y="352" text-anchor="middle" font-size="10" fill="#14532d">ark-seedance-video</text>
+  <text x="582" y="370" text-anchor="middle" font-size="10.5" fill="#14532d">Seedance 动态镜头</text>
+
+  <!-- converge into compose -->
+  <line x1="415" y1="442" x2="415" y2="466" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="582" y1="378" x2="582" y2="466" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- compose / cover / verify -->
+  <rect x="340" y="470" width="320" height="48" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="500" y="494" text-anchor="middle" font-size="12" fill="#14532d">video-compose · 镜头+配音+SRT → 成片</text>
+  <text x="500" y="511" text-anchor="middle" font-size="10.5" fill="#57606a">manifest 里 shots 不区分镜头来自哪条路线</text>
+  <line x1="500" y1="518" x2="500" y2="538" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="340" y="540" width="320" height="44" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="500" y="567" text-anchor="middle" font-size="12" fill="#14532d">video-cover · B站 16:10 + 竖版双封面</text>
+  <line x1="500" y1="584" x2="500" y2="604" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <rect x="340" y="606" width="320" height="44" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="500" y="633" text-anchor="middle" font-size="12" fill="#14532d">media-verify · 音频对位 / 版本 / 白屏</text>
+
+  <!-- s4 成片调度 -->
+  <rect x="48" y="470" width="250" height="48" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="173" y="490" text-anchor="middle" font-size="13" fill="#1a1a1a">调度：成片三件</text>
+  <text x="173" y="508" text-anchor="middle" font-size="11" fill="#57606a">合成 → 封面 → 核验</text>
+
+  <!-- gate2 -->
+  <rect x="48" y="655" width="250" height="50" rx="8" fill="#fff4ce" stroke="#d97706" stroke-dasharray="5 3"/>
+  <text x="173" y="676" text-anchor="middle" font-size="13" font-weight="500" fill="#92400e">◇ 确认门② 标题 + 可见性截图</text>
+  <text x="173" y="694" text-anchor="middle" font-size="11" fill="#92400e">用户点头才允许发布</text>
+
+  <!-- s6 并行派发 -->
+  <rect x="48" y="715" width="250" height="48" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="173" y="735" text-anchor="middle" font-size="13" fill="#1a1a1a">调度：4 agent 并行派发</text>
+  <text x="173" y="753" text-anchor="middle" font-size="11" fill="#57606a">每平台一个，互不抢 profile</text>
+
+  <!-- platforms -->
+  <text x="500" y="714" text-anchor="middle" font-size="10.5" fill="#8b949e">agent 自治：审计 → 发布/替换 → 合集 → 验证</text>
+  <rect x="340" y="722" width="320" height="34" rx="8" fill="#e8f0fe" stroke="#2563eb"/>
+  <text x="500" y="744" text-anchor="middle" font-size="12" fill="#1d4ed8">bilibili-upload（B站）</text>
+  <rect x="340" y="764" width="320" height="34" rx="8" fill="#e8f0fe" stroke="#2563eb"/>
+  <text x="500" y="786" text-anchor="middle" font-size="12" fill="#1d4ed8">xiaohongshu-skills（小红书）</text>
+  <rect x="340" y="806" width="320" height="34" rx="8" fill="#e8f0fe" stroke="#2563eb"/>
+  <text x="500" y="828" text-anchor="middle" font-size="12" fill="#1d4ed8">douyin-publish（抖音）</text>
+  <rect x="340" y="848" width="320" height="34" rx="8" fill="#e8f0fe" stroke="#2563eb"/>
+  <text x="500" y="870" text-anchor="middle" font-size="12" fill="#1d4ed8">tencent-upload（视频号）</text>
+
+  <!-- s7 -->
+  <rect x="48" y="783" width="250" height="46" rx="8" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="173" y="811" text-anchor="middle" font-size="13" fill="#14532d">收回报 → 飞书回写 · 交付汇报</text>
+
+  <!-- left flow arrows -->
+  <line x1="173" y1="132" x2="173" y2="158" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="173" y1="212" x2="173" y2="242" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="173" y1="292" x2="173" y2="328" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="173" y1="378" x2="173" y2="468" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="173" y1="518" x2="173" y2="653" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="173" y1="705" x2="173" y2="713" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="173" y1="763" x2="173" y2="781" stroke="#57606a" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- dashed callouts -->
+  <line x1="298" y1="268" x2="336" y2="268" stroke="#8b949e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arD)"/>
+  <line x1="298" y1="354" x2="336" y2="354" stroke="#8b949e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arD)"/>
+  <line x1="298" y1="494" x2="336" y2="494" stroke="#8b949e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arD)"/>
+  <line x1="298" y1="739" x2="336" y2="739" stroke="#8b949e" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arD)"/>
+</svg>

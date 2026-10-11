@@ -1,0 +1,30 @@
+# dsh-video-pipeline bundle patch —— 往 web profile 插一行宿主插件行。
+#
+# 这一行做两件事：
+#   1. 给 Loader 一个宿主侧条目（lib/index.js）——它在 apply() 里向
+#      ctx.skills 注册一个 provider，把本包 skills/ 目录下的 skill 作为
+#      rank 600 的内置 skill 提供出去；
+#   2. 装完即用：不需要往 ~/.agents/skills 或 ~/.dsh/skills 复制任何文件。
+#
+# 安装：
+#   dsh plugin --profile web add dsh-video-pipeline
+#   dsh plugin --profile web add github:439436269-ctrl/dsh-video-pipeline
+# 本地开发（link 到源码目录）：
+#   dsh plugin --profile web add "link:D:\codes\.dsh-plugins\src\dsh-video-pipeline"
+# 卸载：
+#   dsh plugin --profile web remove dsh-video-pipeline
+#
+# ⚠️ 下面 insert 的 `name:` 必须与安装后的包名完全一致，否则 DSH 找不到模块。
+#
+# 想覆盖默认配置，在 profile 自己的 cordis.patch.yml 里按 id 覆写本行
+# （profile 层在 bundle 层之后应用，所以能覆盖）：
+#
+#   - id: dsh-video-pipeline
+#     config:
+#       enabledSkills: [tangshi-pipeline, video-compose]   # 只放出部分 skill（默认全部）
+#       placeholders:                                       # 覆盖内置占位符
+#         FEISHU_BASE_APP: your_base_app_token
+#         NAS_DELIVERABLE_DIR: /sata1/public/公共分组/唐诗300首短剧
+- insert:
+    - id: dsh-video-pipeline
+      name: dsh-video-pipeline

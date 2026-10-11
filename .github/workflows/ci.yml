@@ -1,0 +1,36 @@
+# 只跑不依赖本机环境的检查。
+# 真机自检（临时 profile 装载、headless 端到端）需要本机 DSH 与模型凭据，写在 VERIFY.md 里本地跑。
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 语法检查（lib）
+        run: npm run check
+
+      - name: 单测（provider / frontmatter / placeholders）
+        run: npm test
+
+      # 这个包的主要风险是「把原作者的隐私信息一起发出去」，所以隐私门必须在 CI 里当硬门。
+      # 它是纯本地确定性检查：残留形态扫描 + 脚本语法解析（防止脱敏改坏代码）。
+      - name: 隐私门
+        run: npm run privacy-gate
+
+      # 源码树测试通过不代表 tarball 能用：files 白名单漏子目录、import 目标没进包，
+      # 都会变成「装上就报错」。npm 包不可撤回，所以对解包后的产物再验一次。
+      - name: 发布物检查（打包 → 解包 → 真实加载）
+        run: npm run verify:artifact
