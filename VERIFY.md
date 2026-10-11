@@ -88,6 +88,17 @@ C:\Users\<user>\.agents\skills\tangshi-pipeline
 
 解析到本机用户 skill（rank 500）而不是包内的内置副本（rank 600）→ 同名时使用者自己的版本胜出，符合设计。
 
+**改动后复跑**（行尾归一、files 改 glob、新增 CI 与发布物检查之后，同一 profile 重跑一次）：
+
+```
+$ dsh --profile video-e2e "列出技能目录里 name 以 video- 开头的 skill"
+video-compose
+video-cover
+video-pipeline
+```
+
+内置条目仍在目录里 → 上述改动没有破坏装载。
+
 ## 5. 发布物检查（P7 前置）
 
 ```
