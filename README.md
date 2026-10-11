@@ -138,8 +138,12 @@ dsh-video-pipeline/
 ├── authored/             # 本包自撰的 skill 源文件（导入时写入 skills/）
 ├── tools/
 │   ├── import-skills.mjs # 可复现导入器：--audit / --write / --verify
-│   └── scrub-rules.mjs   # 剔除、脱敏、残留扫描的唯一规则来源
-└── test/provider.test.mjs
+│   ├── scrub-rules.mjs   # 剔除、脱敏、文档准确性改写、残留扫描的唯一规则来源
+│   ├── verify-artifact.mjs # 打包 → 解包 → 真实加载解出来的入口
+│   └── preflight.mjs     # 只读发布自检（远端占用 / git / 三道门 / 凭据）
+└── test/
+    ├── provider.test.mjs # provider 行为 + 对真实 skills/ 的集成断言
+    └── rules.test.mjs    # 规则回归：10 个用例各对应一个真实踩过的坑
 ```
 
 ## 开发
@@ -148,8 +152,9 @@ dsh-video-pipeline/
 node tools/import-skills.mjs --audit   # 只报告：会保留/脱敏/剔除哪些文件
 node tools/import-skills.mjs --write   # 重建 skills/
 npm run privacy-gate                   # 隐私与语法门（发布前必过）
-npm test                               # provider 单测
+npm test                               # 22 个单测：provider 行为 + 规则回归
 npm run verify:artifact                # 打包 → 解包 → 真实加载解出来的 lib/index.js
+npm run preflight                      # 发布前只读自检（含远端名字占用与凭据）
 ```
 
 导入器默认从 `%USERPROFILE%\.agents\skills` 读源，可用 `SKILLS_SOURCE` 指定别的根。
