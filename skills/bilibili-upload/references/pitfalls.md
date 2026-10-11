@@ -13,7 +13,7 @@
 | `kaiger666888/bilibili-upload`、`RickyCui010/bilibili-api-skill` | 未深入（星少，已有更成熟的 paper-share-skills 覆盖） |
 | `joeseesun/qiaomu-opencli-skills`、`nashsu/autocli-skill` | 通用抓取向，非投稿，未装 |
 
-## 二、paper-bilibili-uploader 实测记录
+## 二、外部 skill paper-bilibili-uploader 实测记录（**本包未含**，此节为当时的选型记录）
 
 1. **缺文件 fail-closed**：空目录 dry-run → 明确报 `No video_meta.json ... Run paper-slides-to-video first`，exit=1 ✓
 2. **完整样例 dry-run**：构造 横屏 `*_narrated.mp4` + 竖屏 `*_portrait_narrated.mp4` + `cover.png` + `video_meta.json` →

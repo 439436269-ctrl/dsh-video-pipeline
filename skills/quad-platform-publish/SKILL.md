@@ -149,7 +149,7 @@ description: 全机指定的统一发布入口 skill：同一个视频一键发�
 
 ### B 站已发布稿件换封面（2026-09-29 实测，无需浏览器）
 
-- 用全局 skill `paper-bilibili-uploader` 的 upload 脚本（`upload.py`，位于该 skill 目录内）加参数 `--edit --vid <BV> --cover <png>`：读 `~\.bilibili\cookies.json`，先 `POST member.bilibili.com/x/vu/web/cover/up` 传图，再 `POST x/vu/web/edit?csrf=` **仅改 cover**、其余元数据原样回填（标题/标签/简介不动）
+- 用外部 skill `paper-bilibili-uploader`（**本包未含**）的 upload 脚本（`upload.py`，位于该 skill 目录内）加参数 `--edit --vid <BV> --cover <png>`：读 `~\.bilibili\cookies.json`，先 `POST member.bilibili.com/x/vu/web/cover/up` 传图，再 `POST x/vu/web/edit?csrf=` **仅改 cover**、其余元数据原样回填（标题/标签/简介不动）
 - cover URL 必须**原样回传**（去掉 scheme 会被拒「封面必须由页面进行上传」）；脚本依赖 `pip install psutil`（requests/PIL 系统 python 自带）
 - 验证：`view?bvid=` 取 `data.pic`，下载线上图与本地图**按 16:10 裁剪后逐像素比对**（B站会裁剪封面，直接比字节会误报）——4 条 meanDiff=0 实测通过
 - 坑：playwright-mcp 常驻服务探针正常但报 `Session not found` 时，会话内无法自愈（MCP session id 缓存失效）→ 此类改稿操作优先走 API 路线

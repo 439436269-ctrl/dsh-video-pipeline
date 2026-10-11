@@ -28,6 +28,7 @@ import {
   SKILLS,
   TEMPLATES,
   dropReason,
+  fixText,
   isTextPath,
   residualFindings,
   scrubText,
@@ -102,13 +103,15 @@ function plan() {
         continue;
       }
       const raw = readFileSync(absolute, 'utf8');
-      const { text, applied } = scrubText(raw);
+      const fixed = fixText(raw);
+      const { text, applied } = scrubText(fixed.text);
       const normalized = normalizeEol(text);
       files.push({
         skill: skill.name,
         rel,
         action: applied.length ? 'scrub' : 'copy',
         applied,
+        fixes: fixed.applied,
         reason: applied.length ? `脱敏：${applied.join('、')}` : undefined,
         bytes: Buffer.byteLength(normalized),
         origin: absolute,
@@ -126,13 +129,15 @@ function plan() {
       if (segments.length < 2) continue;
       const [skillName, ...rest] = segments;
       const origin = join(AUTHORED, rel);
-      const { text, applied } = scrubText(readFileSync(origin, 'utf8'));
+      const fixed = fixText(readFileSync(origin, 'utf8'));
+      const { text, applied } = scrubText(fixed.text);
       const normalized = normalizeEol(text);
       files.push({
         skill: skillName,
         rel: rest.join('/'),
         action: 'authored',
         applied,
+        fixes: fixed.applied,
         reason: applied.length ? `脱敏：${applied.join('、')}` : '本包自撰',
         bytes: Buffer.byteLength(normalized),
         origin,
@@ -156,11 +161,33 @@ function plan() {
       if (file.text.includes(name)) dangling.push({ kept: `${file.skill}/${file.rel}`, dropped: name });
     }
   }
-  return { files, templates, dangling, missing };
+
+  // A skill that ships in the bundle may still tell the reader to load a skill
+  // that does not: on the author's machine every local skill exists, so this is
+  // invisible until someone else installs the pack. Report every mention of a
+  // local skill that is not part of the bundle, so it can be either bundled or
+  // marked as external in the text.
+  const bundleNames = new Set(files.filter((f) => f.action !== 'drop').map((f) => f.skill));
+  const localSkills = existsSync(SOURCE) && statSync(SOURCE).isDirectory()
+    ? readdirSync(SOURCE, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+    : [];
+  const externalRefs = [];
+  for (const file of files) {
+    if (file.action === 'drop' || file.action === 'copy-binary') continue;
+    for (const name of localSkills) {
+      if (bundleNames.has(name)) continue;
+      if (file.text.includes(`\`${name}\``)) {
+        externalRefs.push({ kept: `${file.skill}/${file.rel}`, external: name });
+      }
+    }
+  }
+
+  const fixes = files.flatMap((f) => (f.fixes || []).map((label) => ({ kept: `${f.skill}/${f.rel}`, label })));
+  return { files, templates, dangling, externalRefs, fixes, missing };
 }
 
 /** Print the plan as a per-skill summary plus every non-trivial action. */
-function report({ files, templates, dangling, missing }) {
+function report({ files, templates, dangling, externalRefs, fixes, missing }) {
   const bySkill = new Map();
   for (const file of files) {
     if (!bySkill.has(file.skill)) bySkill.set(file.skill, []);
@@ -192,6 +219,9 @@ function report({ files, templates, dangling, missing }) {
       : `${keeps.length} 保留 / ${scrubs.length} 脱敏 / ${drops.length} 剔除${own.length ? ` / ${own.length} 自撰` : ''}`;
     console.log(`── ${skill.name}  [${skill.group}]  ${state}`);
     for (const entry of scrubs) console.log(`     改  ${entry.rel}  ←  ${entry.applied.join('、')}`);
+    for (const entry of entries.filter((e) => (e.fixes || []).length)) {
+      console.log(`     校  ${entry.rel}  ←  文档准确性改写：${entry.fixes.join('、')}`);
+    }
     for (const entry of own) console.log(`     写  ${entry.rel}  ←  ${entry.reason}`);
     for (const entry of drops) console.log(`     删  ${entry.rel}  ←  ${entry.reason}`);
   }
@@ -203,7 +233,11 @@ function report({ files, templates, dangling, missing }) {
     console.log(`\n⚠ 被剔除的输入仍被保留文件引用（${dangling.length} 处，需在 README 里说明要自备）：`);
     for (const item of dangling) console.log(`     !  ${item.kept}  仍读取  ${item.dropped}`);
   }
-  console.log(`\n合计：保留 ${kept}，脱敏 ${scrubbed}，剔除 ${dropped}，自撰 ${authored}，模板 ${templates.length}`);
+  if (externalRefs.length) {
+    console.log(`\n⚠ 正文提到未打进包的 skill（${externalRefs.length} 处）：装到别人机器上它们不存在，须标明为外部或补进包`);
+    for (const item of externalRefs) console.log(`     ?  ${item.kept}  提到  ${item.external}`);
+  }
+  console.log(`\n合计：保留 ${kept}，脱敏 ${scrubbed}，准确性改写 ${fixes.length}，剔除 ${dropped}，自撰 ${authored}，模板 ${templates.length}`);
   if (missing.length) console.log(`缺失源 skill：${missing.join(', ')}`);
   return dropped + scrubbed + kept;
 }

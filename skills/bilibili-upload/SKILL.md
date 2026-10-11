@@ -5,7 +5,7 @@ description: B站视频投稿、biliup 凭据管理与合集（视频合集）�
 
 # B站视频投稿（bilibili-upload）
 
-用 biliup 把视频投稿到 B站；配套 paper-bilibili-uploader 做论文视频投稿。
+用 biliup 把视频投稿到 B站。本文件另含一条论文视频投稿路径，它依赖**本包未包含**的外部 skill `paper-bilibili-uploader`；biliup 投稿引擎本身已包含在本包内。
 2026-09-28 全链路实测通过（凭据校验 + list 拉回真实稿件 + dry-run 通过）。
 **入坑指南**（test-skills 实测记录、凭据格式反推过程、坑清单）：`references/pitfalls.md`；**重登流程**：`references/login.md`
 
@@ -46,7 +46,7 @@ $ck = "{{USER_HOME}}\.bilibili\cookies.json"
   --title "标题" --tid 231 --tag "标签1,标签2" --desc "简介" --copyright 1 --cover "D:\abs\cover.png"
 ```
 
-## 论文视频投稿（配套 skill：paper-bilibili-uploader）
+## 论文视频投稿（依赖**本包未包含**的外部 skill `paper-bilibili-uploader`；需先自行安装，下文命令里的路径按它的实际安装位置调整）
 
 目录约定（缺一 fail-closed）：
 
@@ -111,4 +111,4 @@ $ck = "{{USER_HOME}}\.bilibili\cookies.json"
 ## 对照说明：social-publish-skills 的 bilibili（2026-09-29 结论）
 
 上游 `multi-platform-publish-orchestrator` 覆盖 tencent/douyin/kuaishou/xiaohongshu/wechatmp/zhihu/baijiahao **七平台，不含 B 站**；其 `skills/bilibili-upload` 为**占位未实现**（仓库 AGENTS.md 明示勿声称支持）。
-因此 B 站唯一可用路径 = 本 skill（biliup）+ `paper-bilibili-uploader`（论文投稿）；多平台场景走 `quad-platform-publish`（四平台总控，B 站段走 biliup）。
+因此 B 站唯一可用路径 = 本 skill（biliup）+ `paper-bilibili-uploader`（论文投稿，**本包未含**）；多平台场景走 `quad-platform-publish`（四平台总控，B 站段走 biliup）。

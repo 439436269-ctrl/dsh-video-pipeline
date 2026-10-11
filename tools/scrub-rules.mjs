@@ -264,6 +264,46 @@ export const RESIDUAL_PATTERNS = [
   [/code\.aistar\.cool/, '上游赞助商外链'],
 ];
 
+/**
+ * Documentation accuracy fixes, applied at import before scrubbing.
+ *
+ * These are not redactions: nothing private is removed. They correct statements
+ * that would be *wrong* for an installer — chiefly a "companion skill" that
+ * this package does not ship, whose hardcoded path therefore does not exist on
+ * anyone else's machine. Keeping the fix here (rather than editing the source
+ * skills) matters because the source is the author's live skill library, synced
+ * to other machines and to a NAS.
+ *
+ * `[pattern, replacement, label]`.
+ */
+export const DOC_FIXES = [
+  [
+    /用 biliup 把视频投稿到 B站；配套 paper-bilibili-uploader 做论文视频投稿。/g,
+    '用 biliup 把视频投稿到 B站。本文件另含一条论文视频投稿路径，它依赖**本包未包含**的外部 skill `paper-bilibili-uploader`；biliup 投稿引擎本身已包含在本包内。',
+    '配套 skill 标明为外部',
+  ],
+  [
+    /## 论文视频投稿（配套 skill：paper-bilibili-uploader）/g,
+    '## 论文视频投稿（依赖**本包未包含**的外部 skill `paper-bilibili-uploader`；需先自行安装，下文命令里的路径按它的实际安装位置调整）',
+    '配套 skill 章节标明为外部',
+  ],
+  [
+    /因此 B 站唯一可用路径 = 本 skill（biliup）\+ `paper-bilibili-uploader`（论文投稿）/g,
+    '因此 B 站唯一可用路径 = 本 skill（biliup）+ `paper-bilibili-uploader`（论文投稿，**本包未含**）',
+    '配套 skill 标注为外部',
+  ],
+  [
+    /- 用全局 skill `paper-bilibili-uploader` 的 upload 脚本/g,
+    '- 用外部 skill `paper-bilibili-uploader`（**本包未含**）的 upload 脚本',
+    '配套 skill 标注为外部',
+  ],
+  [
+    /## 二、paper-bilibili-uploader 实测记录/g,
+    '## 二、外部 skill paper-bilibili-uploader 实测记录（**本包未含**，此节为当时的选型记录）',
+    '实测记录节标明为外部',
+  ],
+];
+
 /** Extensions treated as text and therefore scrubbed; everything else is copied raw. */
 export const TEXT_EXTENSIONS = new Set([
   '.md', '.markdown', '.json', '.jsonc', '.js', '.mjs', '.cjs', '.ts', '.py',
@@ -295,6 +335,24 @@ export function isTextPath(path) {
   const dot = name.lastIndexOf('.');
   const ext = dot > 0 ? name.slice(dot).toLowerCase() : '';
   return TEXT_EXTENSIONS.has(ext) || TEXT_FILENAMES.has(name);
+}
+
+/**
+ * Apply the documentation-accuracy fixes to one text file.
+ * @param {string} text - file contents.
+ * @returns {{ text: string, applied: string[] }} corrected text and the labels that fired.
+ */
+export function fixText(text) {
+  let output = text;
+  const applied = [];
+  for (const [pattern, replacement, label] of DOC_FIXES) {
+    const re = new RegExp(pattern.source, pattern.flags);
+    if (re.test(output)) {
+      output = output.replace(new RegExp(pattern.source, pattern.flags), replacement);
+      if (!applied.includes(label)) applied.push(label);
+    }
+  }
+  return { text: output, applied };
 }
 
 /**
