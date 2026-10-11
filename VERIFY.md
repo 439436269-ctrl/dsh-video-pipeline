@@ -31,6 +31,8 @@ exit 0
 
 另有一次自撰内容导致的失败：`video-pipeline/SKILL.md` 正文里写了字面的 `{{TOKEN}}`，被单测判为未知占位符 → 改写措辞。
 
+还有一次是**门自身**的可移植性缺陷（加 CI 时暴露）：`.py` 的语法检查原本写死 `python`，在只有 `python3` 的机器（如 ubuntu CI runner）上会 `ENOENT`，被当成「语法失败」误报红灯。已改为先探测 `PYTHON` → `python3` → `python`，都不可用则如实报告「跳过」而不是失败。
+
 ## 2. 单测（P3）
 
 ```
@@ -86,7 +88,7 @@ C:\Users\<user>\.agents\skills\tangshi-pipeline
 
 解析到本机用户 skill（rank 500）而不是包内的内置副本（rank 600）→ 同名时使用者自己的版本胜出，符合设计。
 
-## 5. 打包预检（P7 前置）
+## 5. 发布物检查（P7 前置）
 
 ```
 $ npm pack --dry-run --json
@@ -94,7 +96,33 @@ total files: 100   tarball: 564 KB   unpacked: 1253 KB
 顶层分布：skills 90 · lib 4 · package.json · cordis.patch.yml · README.md · LICENSE · CHANGELOG.md · THIRD-PARTY-NOTICES.md
 ```
 
-`package.json` / `cordis.patch.yml` / 三份文档 / 4 个 lib 模块 / 90 个 skill 文件全部在 tarball 内，无缺失。
+`npm run verify:artifact` —— 源码树测试通过不代表 tarball 能用，所以对**解包后的产物**再验一次：
+
+```
+$ node tools/verify-artifact.mjs
+一、打包
+  ✅ tarball：dsh-video-pipeline-0.1.0.tgz（564 KB，解包 1253 KB）
+二、包内清单
+  ✅ 入口与文档齐备（6 项）
+  ✅ lib 内 4 个模块的相对 import 全部落在包内
+  ✅ 18 个导入 skill 的 SKILL.md 全部在包内（另含自撰 skill）
+三、解包并真实加载
+  ✅ 解包得到 19 个 skill 目录
+  ✅ 插件入口导出正常：name=dsh-video-pipeline
+  ✅ provider 从解包目录报告了 19 个 skill
+  ✅ 正文加载正常：video-pipeline（3391 字符，rank 600，source bundled）
+  ✅ 全部占位符都能取到默认值，正文无残留 token
+发布物检查通过
+exit 0
+```
+
+关键在于第三段 import 的是**解出来的** `lib/index.js`（安装者机器上真正会跑的那份），而不是源码树。它还断言 `tools/`、`authored/`、`test/` 没有混进包。
+
+## 5b. CI
+
+`.github/workflows/ci.yml` 在 ubuntu + Node 22/24 上跑四步：`npm run check` → `npm test` → `npm run privacy-gate` → `npm run verify:artifact`。
+
+依赖本机环境的自检（临时 profile 装载、headless 端到端，即本文件第 3、4 节）**没有**进 CI——它们需要本机 DSH 与模型凭据，进 CI 只会一直红。这个包的主要风险是「把原作者的隐私信息发出去」，而隐私门是纯本地确定性检查，所以把它当 CI 硬门。
 
 ## 6. 本机 web profile 安装（P4）
 
@@ -112,6 +140,16 @@ stderr: 0 字符
 
 ## 7. 未验证 / 已知边界
 
+- **未发 npm、未建 GitHub 仓库**。前置条件实测（2026-10-11）：
+
+  | 需要 | 状态 |
+  |---|---|
+  | GitHub 凭据 | ❌ `credential.helper=manager` 已配置但未存 github.com 凭据；非交互探测报 `Cannot prompt because user interactivity has been disabled` → 首次 push 需弹窗授权或提供 token |
+  | npm Automation token | ❌ `~/.secrets/keys.env` 不存在，`NPM_AUTOMATION_TOKEN` 未设置 |
+  | 市场 PR | ⏸ 需仓库创建满 1 天后才能提（CI 自动检查仓库年龄） |
+
+  本机已建本地 git 仓库并完成首次提交（`main`，109 文件），发布坐标与命令见 `PUBLISH.md`。
+
 - **发布链路未在真实平台跑过**：本包只提供 skill，不含可离线执行的生产流水线；`quad-platform-publish` 等 skill 的执行需要平台凭据，未在本包内验证。
-- **未发 npm / 未建仓**：0.1.0 尚未发布，本节记录的是本地验证。
+- **历史复盘文档保留了真实运营数字**：`tangshi-pipeline/references/data-review-*.md` 里的方法论与结论保留，具体播放数字也保留了（按「剥离真实播放数据 **JSON**」的口径执行）。对应数据文件未随包。若需连数字一并剥离，改 `tools/scrub-rules.mjs` 后重跑导入即可。
 - 部分脚本引用的输入（`posts.json`、`*-stats.json`、`dy_works_all.json`）需先跑采集脚本产出；`tools/import-report.txt` 列出了全部这类引用。

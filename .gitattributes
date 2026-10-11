@@ -1,0 +1,11 @@
+# 统一行尾：仓库内一律 LF，避免 Windows 上 checkout 后整仓 diff（skill 文件多为跨平台脚本）
+* text=auto eol=lf
+
+# 二进制资源不做行尾转换
+*.png binary
+*.webp binary
+*.ttf binary
+
+# 生成物在 diff 里不参与统计
+tools/import-report.txt linguist-generated
+skills/** linguist-generated

@@ -142,11 +142,16 @@ dsh-video-pipeline/
 ```sh
 node tools/import-skills.mjs --audit   # 只报告：会保留/脱敏/剔除哪些文件
 node tools/import-skills.mjs --write   # 重建 skills/
-node tools/import-skills.mjs --verify  # 隐私与语法门（发布前必过）
-node --test test/provider.test.mjs     # provider 单测
+npm run privacy-gate                   # 隐私与语法门（发布前必过）
+npm test                               # provider 单测
+npm run verify:artifact                # 打包 → 解包 → 真实加载解出来的 lib/index.js
 ```
 
 导入器默认从 `%USERPROFILE%\.agents\skills` 读源，可用 `SKILLS_SOURCE` 指定别的根。
+
+`npm run verify:artifact` 是发布前最该跑的一条：源码树测试通过不代表 tarball 能用（`files` 白名单漏子目录、相对 import 的目标没进包，都会变成「装上就报错」，而 npm 包不可撤回）。它会把 tarball 解出来，直接 import 解出来的 `lib/index.js`，核对 19 个 skill 与全部占位符。CI 里也跑这条。
+
+发布坐标与三条渠道的落地命令见 [`PUBLISH.md`](PUBLISH.md)；验证记录见 [`VERIFY.md`](VERIFY.md)。
 
 ## 许可
 
