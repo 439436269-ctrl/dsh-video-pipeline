@@ -25,6 +25,8 @@
 
 ## 三条发布渠道与命令
 
+> **先跑一次自检**：`node tools/preflight.mjs` —— 只读、不推送、不发布。它会核对包清单（`dsh.bundle`、署名、`repository`、`files` 白名单）、远端名字占用、git 状态、三道本地门与凭据，并给出「本地是否已可发 + 还差哪些外部条件」的明确判决。本地问题会让它非零退出，缺凭据只单独列出（那是外部条件，不是包的缺陷）。
+
 > **顺序有硬约束：先建仓推送，再发 npm。** npm 页面渲染的是 tarball 里的 README，而 README 顶部那张编排图用的是
 > `https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/...` 绝对地址
 > （相对路径在 npm 页面上拿不到）。仓库没先公开，npm 页面的图就是坏的。

@@ -7,6 +7,8 @@ description: 短视频流水线的总入口：把「一条编排 skill + 一组�
 
 本包把一条**已经跑通的 AI 短剧生产流水线**整体装进 DSH：一个编排 skill 负责调度与确认门，一组原子 skill 各管一个环节。所有 skill 随插件一起安装，直接出现在 agent 的技能目录里——不需要往 `~/.agents/skills` 复制任何文件。
 
+目录规模：**共 19 个内置 skill = 1 个总入口（本 skill）+ 1 个编排（`tangshi-pipeline`）+ 17 个原子 skill**。
+
 ## 先读哪一份
 
 | 你的处境 | 加载哪个 skill |

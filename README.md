@@ -1,6 +1,6 @@
 # dsh-video-pipeline
 
-把一条**跑通过的真实短视频生产流水线**作为内置 skill 装进 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：1 个编排 skill + 18 个原子 skill，共 19 个技能，随插件一起出现在 agent 的技能目录里。
+把一条**跑通过的真实短视频生产流水线**作为内置 skill 装进 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：共 19 个技能（1 个总入口 + 1 个编排 + 17 个原子），随插件一起出现在 agent 的技能目录里。
 
 ![流水线编排图](https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/skills/tangshi-pipeline/references/orchestration-flow.png)
 
@@ -10,7 +10,7 @@
 
 ## 这个插件做了什么
 
-- **提供 19 个 skill**（编排 1 + 原子 18），覆盖选题、配音、出图、出视频、运镜、合成、封面、核验、数据复盘、多平台发布、进度回写。
+- **提供 19 个 skill**（总入口 1 + 编排 1 + 原子 17），覆盖选题、配音、出图、出视频、运镜、合成、封面、核验、数据复盘、多平台发布、进度回写。
 - **自撰一个总入口 skill**（`video-pipeline`），说明这包是什么、每个环节该加载哪个原子 skill、占位符怎么填。安装者没有原作者本机那套同名 skill，所以入口 skill 是这里唯一的起点。
 - **不含任何运行时依赖**：只 import Node 内建模块，通过 `ctx.inject(['skills'])` 拿到注册表。没有 `dependencies`，也没有需要宿主解析的 `peerDependencies`，因此不存在 peer 范围解析失败（ERESOLVE）问题。
 - **不动别人的 skill**：provider 以 rank 600 报告候选（内置 rank），如果你自己的项目/用户 skill 同名（rank 100-500），**你的版本胜出**，本包不会遮蔽它。

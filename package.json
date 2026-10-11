@@ -44,7 +44,8 @@
     "import:audit": "node tools/import-skills.mjs --audit",
     "import:write": "node tools/import-skills.mjs --write",
     "privacy-gate": "node tools/import-skills.mjs --verify",
-    "verify:artifact": "node tools/verify-artifact.mjs"
+    "verify:artifact": "node tools/verify-artifact.mjs",
+    "preflight": "node tools/preflight.mjs"
   },
   "license": "MIT",
   "author": {

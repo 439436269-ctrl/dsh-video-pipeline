@@ -101,6 +101,45 @@ video-pipeline
 
 内置条目仍在目录里 → 上述改动没有破坏装载。
 
+## 4b. 从 tarball 安装（分发路径，非 link:）
+
+前面 3、4 节用的是 `link:` 指向源码目录，验证的是**开发路径**。真实安装（`dsh plugin add` 或从 npm/GitHub）走的是 tarball，于是另起一个 profile 装了打包产物：
+
+```
+$ npm pack --pack-destination <tmp>            # dsh-video-pipeline-0.1.0.tgz（564 KB）
+$ dsh --profile video-tgz --from-default-profile headless --dump-config
+$ dsh plugin --profile video-tgz add "file:<tmp>/dsh-video-pipeline-0.1.0.tgz"
++ dsh-video-pipeline file:.../dsh-video-pipeline-0.1.0.tgz
+
+$ # 安装形态：确认是真的目录副本，不是软链
+$ (Get-Item ...\profiles\video-tgz\node_modules\dsh-video-pipeline).LinkType
+（空）→ 真实目录副本，等价于 npm 安装
+包内 skill 数: 19    包内 lib: frontmatter.js, index.js, placeholders.js, provider.js
+
+$ dsh --profile video-tgz --dump-config | grep dsh-video-pipeline
+- id: dsh-video-pipeline
+  name: dsh-video-pipeline
+exit 0   stderr 空
+```
+
+**功能验收**：`dsh --profile video-tgz "加载 skill 'video-pipeline' 并报出目录规模那一行"` → 返回正文里那一行原文（`共 19 个内置 skill = 1 个总入口 + 1 个编排 + 17 个原子`）。
+
+这次真实挂载还**抓出一处文档自相矛盾**：agent 在正文里找不到 skill 数量，并指出 README 写 18 个原子、CHANGELOG 写 17 个。核对后确认正解是「1 总入口 + 1 编排 + 17 原子 = 19」，README 把总入口算进了原子。已修 README 措辞、在正文里写明目录规模，并 remove+add 强制重装同版本 tarball（pnpm 对同路径同版本会跳过重装）复跑确认修复到达了安装副本。
+
+## 4c. 发布自检
+
+```
+$ node tools/preflight.mjs
+一、包清单 ✅ dsh.bundle.patch 存在 / 署名带主页 / repository 指回目标仓库 / files 白名单含 lib/**/*.js 与 skills/**
+二、远端名字占用 ✅ npm dsh-video-pipeline 空闲（404）  ✅ GitHub 仓库未建（404）
+三、git 状态 ✅ 工作区干净、分支 main、提交数 6
+四、本地门 ✅ 隐私门 / 单测 / 发布物检查
+五、发布凭据 ⏳ npm token 缺失  ⏳ GitHub 凭据未存
+六、发布顺序（先建仓推送 → npm publish → 满 1 天后提市场 PR）
+```
+
+这是只读命令：不推送、不发布。本地问题非零退出；缺凭据只单独列出。凭据探测禁掉了交互提示与 GCM 弹窗（否则会挂住等人工输入）。**不进 CI**——它要探网络、本机凭据库与本地 git。
+
 ## 5. 发布物检查（P7 前置）
 
 ```
