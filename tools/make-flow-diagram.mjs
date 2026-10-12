@@ -233,6 +233,15 @@ for (const [kind, label] of legend) {
   lx += 26 + label.length * 11.5;
 }
 
+// 右上角徽标：这套 skill 装在哪里。
+// 放在图例同一行、右对齐，因此不需要改动下方任何坐标（改布局最容易碰坏已有卡片排布）。
+// 文案与公众号封面同源，图自身就能说清「是什么 + 装在哪」。
+const installNote = '同一套 skill：DSH 插件 · Claude Code · Codex';
+const noteW = installNote.length * 8.2 + 20;
+const noteX = WIDTH - M - noteW;
+out.push(`  <rect x="${noteX}" y="69" width="${noteW}" height="19" rx="9.5" fill="#eef6ff" stroke="#b6d7ff"/>`);
+out.push(`  <text x="${noteX + noteW / 2}" y="82.5" text-anchor="middle" font-size="11" fill="#0b4a8f">${ESC(installNote)}</text>`);
+
 // 阶段标题 + 卡片
 COLUMNS.forEach((column, i) => {
   const x = colX(i);

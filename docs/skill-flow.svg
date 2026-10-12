@@ -20,6 +20,8 @@
   <text x="388" y="83" font-size="11" fill="#57606a">交付</text>
   <rect x="419" y="72" width="13" height="13" rx="3" fill="#fde8e8" stroke="#b91c1c"/>
   <text x="437" y="83" font-size="11" fill="#57606a">回写与复盘</text>
+  <rect x="988.4000000000001" y="69" width="331.59999999999997" height="19" rx="9.5" fill="#eef6ff" stroke="#b6d7ff"/>
+  <text x="1154.2" y="82.5" text-anchor="middle" font-size="11" fill="#0b4a8f">同一套 skill：DSH 插件 · Claude Code · Codex</text>
   <rect x="36" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
   <text x="120" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">入口</text>
   <rect x="36" y="146" width="168" height="54" rx="6" fill="#e8f0fe" stroke="#2563eb" stroke-width="1.2"/>
