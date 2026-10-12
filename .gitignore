@@ -1,3 +1,8 @@
 node_modules/
 *.tgz
 *.log
+
+# 发布/插图脚本失败或成功时的调试截图（由 skill 脚本写到封面同目录）：含后台账号信息，禁止入库
+*-fail-*.png
+inserted-final.png
+direct-fail-*.png
