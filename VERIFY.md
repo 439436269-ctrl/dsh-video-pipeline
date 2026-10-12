@@ -245,6 +245,35 @@ TOTAL=3
 
 过滤生效：从 19 个收窄到配置的 3 个。这次跑的是**从 registry 安装的那份**，所以两个配置键都在真实分发包上验过了。验证后同样把 patch 恢复为 `[]`。
 
+（本节用的 `video-npm` profile 在验证完成后已删除，同时删掉的是本地 tarball 用的 `video-tgz`；保留 `video-e2e`——它是 `link:` 安装，内容始终跟着源码，适合以后复跑。重建方式就是本节与 4b 节里那两条 `dsh --profile … --from-default-profile headless` + `dsh plugin … add` 命令。）
+
+## 4h. 仓库元数据（市场条目 / 截图 / README 图地址）
+
+这三个东西是给**别人**读的，格式错了在本仓库里看不出来：市场条目格式不合规会被 awesome-dsh-plugin 的 CI 打回；`screenshots.json` 路径写错则市场详情页 404；README 用 raw 绝对地址引图，路径或分支写错则 npm 页面与 GitHub 都是裂图。
+
+`npm run verify:metadata` lint 了这些（**无依赖**实现——本包零依赖，不为 CI 引入 YAML 库，所以按结构规则校验并明确说明它不是解析器）：
+
+```
+$ node tools/verify-repo-metadata.mjs
+一、市场条目 publish/market-entry.yml
+  ✅ url 与 package.json 的仓库一致：https://github.com/439436269-ctrl/dsh-video-pipeline
+  ✅ name 为 owner/repo：439436269-ctrl/dsh-video-pipeline
+  ✅ category 合法：skill
+  ·  条目落点名应为 data/plugins/439436269-ctrl__dsh-video-pipeline.yml（本文件是待提交的内容副本）
+  ✅ description.en 结构合法（366 字符，引号=有，以句号结尾）
+二、screenshots.json
+  ✅ 条目数 2（市场要求 1-8）
+  ✅ 相对路径存在：docs/skill-flow.png
+  ✅ 相对路径存在：skills/tangshi-pipeline/references/orchestration-flow.png
+三、README 里的图能不能取到
+  ✅ 图文件在仓库里：docs/skill-flow.png
+exit 0
+```
+
+另外用真正的 YAML 解析器（借 dsh 自带的 `js-yaml`）单独确认过一次条目能被解析、`installer's` 的单引号转义生效——lint 是常设门，解析是一次性确认。
+
+CI 与 `preflight` 都跑这一条。
+
 ## 5. 发布物检查（P7 前置）
 
 ```

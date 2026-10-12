@@ -144,7 +144,7 @@ if (!inRepo) {
 }
 
 console.log('\n四、本地门（发布前必须全绿）');
-for (const [label, script] of [['隐私门', 'privacy-gate'], ['单测', 'test'], ['发布物检查', 'verify:artifact']]) {
+for (const [label, script] of [['隐私门', 'privacy-gate'], ['单测', 'test'], ['发布物检查', 'verify:artifact'], ['仓库元数据检查', 'verify:metadata']]) {
   const result = run(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', script, '--silent'], { shell: process.platform === 'win32' });
   if (result.ok) ok(`${label}通过`);
   else fail(`${label}未通过：${(result.stderr || result.stdout).trim().split('\n').slice(-3).join(' / ')}`);

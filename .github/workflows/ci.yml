@@ -34,3 +34,8 @@ jobs:
       # 都会变成「装上就报错」。npm 包不可撤回，所以对解包后的产物再验一次。
       - name: 发布物检查（打包 → 解包 → 真实加载）
         run: npm run verify:artifact
+
+      # 市场条目与 screenshots.json 是给 awesome-dsh-plugin 读的，格式错了整条被打回；
+      # 图地址写错则 storefront 上 404。这两件事在本仓库里都看不出来，所以进 CI。
+      - name: 仓库元数据检查（市场条目 / 截图 / README 图地址）
+        run: npm run verify:metadata
