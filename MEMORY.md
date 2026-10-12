@@ -37,6 +37,18 @@
 
 ## Discovered durable knowledge
 
+### 本机路径权威表（2026-10-12 实测，避免再猜）
+
+| 用途 | 权威路径 | 实测状态 |
+|---|---|---|
+| skills 库（Agent 扫描、读写） | `%USERPROFILE%\.agents\skills` | ✅ **存在，复数**；本机 96 个 skill；`zspace-skills-sync` 的默认源就是它 |
+| `%USERPROFILE%\.agent\`（**单数**） | — | ❌ **不存在**；任何文档写单数都是错的 |
+| `%USERPROFILE%\.config\mimocode\skills\` | 旧 MiMo 根 | ⚠️ 只剩下一个 `agents.md`；**多个 skill 引用的 `.venvs/publish/Scripts/biliup.exe` 已不存在** |
+| `%USERPROFILE%\.dsh\skills\` | — | ❌ 不存在（DSH 不从这里读 skill） |
+| `C:\Users\86136\...`（出现在 5 个 skill 里） | 另一台机的用户名 | ❌ 本机无效（github-access-fix / resume-zspace-edit / zspace-public-access / zspace-skills-sync 及其 references） |
+
+结论：**读写 skill 只认 `%USERPROFILE%\.agents\skills`**（Windows）/ `~/.agents/skills`（macOS）；旧文档里的 `.config/mimocode/skills` 只在「历史沿革」意义上成立。
+
 ### 隐私与仓库
 
 - **`git add -A` 前必须审查文件清单**（2026-10-12 事故）：发布脚本的调试截图落到 `docs/` 被带进
