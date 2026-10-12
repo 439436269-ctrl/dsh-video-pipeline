@@ -49,7 +49,7 @@
 | `%USERPROFILE%\.agent\`（**单数**） | — | ❌ **不存在**；任何文档写单数都是错的 |
 | `%USERPROFILE%\.config\mimocode\skills\` | 旧 MiMo 根 | ⚠️ 只剩下一个 `agents.md`；**多个 skill 引用的 `.venvs/publish/Scripts/biliup.exe` 已不存在** |
 | `%USERPROFILE%\.dsh\skills\` | — | ❌ 不存在（DSH 不从这里读 skill） |
-| `C:\Users\86136\...`（出现在 5 个 skill 里） | 另一台机的用户名 | ❌ 本机无效（github-access-fix / resume-zspace-edit / zspace-public-access / zspace-skills-sync 及其 references） |
+| `C:\Users\86136\...`（曾出现在 5 个 skill 里） | 另一台机的用户名 | ✅ **已于 2026-10-12 清理**：12 处改为 `$env:USERPROFILE`（代码）/ `%USERPROFILE%`（散文），并把同时存在的废弃根 `.config\mimocode\skills` 一并修正为 `.agents\skills` |
 
 结论：**读写 skill 只认 `%USERPROFILE%\.agents\skills`**（Windows）/ `~/.agents/skills`（macOS）；旧文档里的 `.config/mimocode/skills` 只在「历史沿革」意义上成立。
 
