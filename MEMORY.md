@@ -5,6 +5,10 @@
 
 ## Rules
 
+- **找 skill / 脚本 / 本机约定时，优先读 `~/.agents/`（复数）**（2026-10-12 作者指定）。
+  本机权威 skills 根 = Windows `%USERPROFILE%\.agents\skills`（96 个）/ macOS `~/.agents/skills`；
+  `~/.agent/`（**单数**）不存在，`~/.config/mimocode/skills` 是已废弃旧根（只剩一个 `agents.md`）。
+  只有确认 `.agents/` 里没有，才去旧路径翻。详见下方「本机路径权威表」。
 - **发布动作由作者点头后执行。** npm publish、平台「发表/更新」都不擅自点；公众号只做到草稿，
   由作者手动发表（2026-10-02 作者指定，优先级最高）。
 - **唯一密码只存 `~/.secrets/keys.env`**（本机 ACL 已收敛、无继承），绝不写进记忆文件、skill、
