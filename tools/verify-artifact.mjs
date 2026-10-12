@@ -114,6 +114,39 @@ if (!existsSync(extracted)) {
   if (crlf.length) bad(`包内有 ${crlf.length} 个文本文件是 CRLF 行尾（如 ${crlf[0]}）`);
   else ok('包内文本文件行尾统一为 LF');
 
+  // 文档一致性：跟**最后一次提交**比，不是跟工作区比。
+  // 打包本身就取自工作区，拿包内内容跟工作区比是同一份，断言永远不会失败
+  // （这一版最初就是那么写的，实测改一个字节后它照样通过）。
+  // 真正要防的是「改了文档却没提交就打包发布」—— 那样包里的文档与仓库里的提交不一致，
+  // 别人看到的 npm 页面就等于一份没进版本库的内容。npm 渲染的正是这份 README。
+  const committed = (name) => {
+    try {
+      return execFileSync('git', ['show', `HEAD:${name}`], {
+        cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+      });
+    } catch {
+      return undefined;
+    }
+  };
+  let compared = 0;
+  let mismatched = 0;
+  for (const name of ['README.md', 'CHANGELOG.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md']) {
+    if (!paths.includes(name)) continue;
+    const head = committed(name);
+    if (head === undefined) {
+      info(`${name} 不在 git HEAD 里，跳过一致性比对`);
+      continue;
+    }
+    const packed = readFileSync(join(extracted, name), 'utf8');
+    if (packed !== head) {
+      bad(`${name} 与最后一次提交不一致 —— 改了文档却没提交就打包（npm 页面会显示未进版本库的版本）`);
+      mismatched += 1;
+    } else {
+      compared += 1;
+    }
+  }
+  if (!mismatched && compared) ok(`包内 ${compared} 个文档与最后一次提交逐字节一致`);
+
   // Import the extracted module, not the source tree: this is the code that
   // would actually run on an installer's machine.
   const mod = await import(pathToFileURL(join(extracted, 'lib', 'index.js')).href);

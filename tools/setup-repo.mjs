@@ -121,10 +121,12 @@ if (TOKEN) ok('已找到 GitHub token（来源：环境变量或 ~/.secrets/keys
 else bad('没有 GitHub token：设 GITHUB_TOKEN，或在 ~/.secrets/keys.env 里加一行');
 
 let login;
+let authOk = false;
 if (TOKEN) {
   const who = await api('GET', '/user');
   if (who.status === 200 && who.body?.login) {
     login = who.body.login;
+    authOk = true;
     ok(`token 账号：${login}`);
     if (login !== owner) bad(`token 属于 ${login}，但 repository.url 指向 ${owner} —— 推不到那个仓库`);
   } else {
@@ -134,18 +136,23 @@ if (TOKEN) {
 
 step('三、目标仓库');
 let repoExists = false;
-const existing = await api('GET', `/repos/${owner}/${repo}`);
-if (existing.status === 200) {
-  repoExists = true;
-  ok(`已存在：${existing.body.full_name}（private=${existing.body.private}，默认分支 ${existing.body.default_branch}）`);
-  if (existing.body.private) bad('仓库是 private —— 市场与 topic 检索都要求 public');
-  const topics = existing.body.topics ?? [];
-  if (topics.includes('dsh-plugin')) ok('topics 已含 dsh-plugin');
-  else info(`topics 目前：${topics.join(', ') || '（空）'} —— 本次会补齐`);
-} else if (existing.status === 404) {
-  info(`尚未创建：${owner}/${repo}（本次会创建为 public）`);
+if (TOKEN && !authOk) {
+  // 凭据无效时这一项必然 401，那是上面那条的后果而不是独立发现 —— 报一次就够。
+  info('跳过仓库查询：上面的凭据无效，先修那一条');
 } else {
-  bad(`查询仓库失败：HTTP ${existing.status}`);
+  const existing = await api('GET', `/repos/${owner}/${repo}`);
+  if (existing.status === 200) {
+    repoExists = true;
+    ok(`已存在：${existing.body.full_name}（private=${existing.body.private}，默认分支 ${existing.body.default_branch}）`);
+    if (existing.body.private) bad('仓库是 private —— 市场与 topic 检索都要求 public');
+    const topics = existing.body.topics ?? [];
+    if (topics.includes('dsh-plugin')) ok('topics 已含 dsh-plugin');
+    else info(`topics 目前：${topics.join(', ') || '（空）'} —— 本次会补齐`);
+  } else if (existing.status === 404) {
+    info(`尚未创建：${owner}/${repo}（本次会创建为 public）`);
+  } else {
+    bad(`查询仓库失败：HTTP ${existing.status}`);
+  }
 }
 info(`目标 topics：${TOPICS.join(', ')}`);
 const badTopic = TOPICS.find((t) => !/^[a-z0-9-]+$/.test(t));
