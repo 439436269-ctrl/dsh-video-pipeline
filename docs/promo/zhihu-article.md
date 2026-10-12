@@ -1,0 +1,290 @@
+# 把一个 agent skill 包做到可发布：19 个 skill、零依赖、一道会「咬人」的隐私门
+
+> 知乎版。比公众号版更偏工程实现：架构选择、验证方法、以及我踩到的坑。
+
+## 目录
+
+- [做完的东西](#做完的东西)
+- [一、为什么拆成「编排 + 原子」](#一为什么拆成编排--原子)
+- [二、零依赖是刻意的](#二零依赖是刻意的)
+- [三、让别人装得上，也让自己不被覆盖](#三让别人装得上也让自己不被覆盖)
+- [四、隐私门：发布不可逆，所以需要一道机器门](#四隐私门发布不可逆所以需要一道机器门)
+- [五、我学到的最有用的一条：断言要会咬人](#五我学到的最有用的一条断言要会咬人)
+- [六、分发：一个源，两个宿主仓](#六分发一个源两个宿主仓)
+- [七、看起来像失败、其实不是的三件事](#七看起来像失败其实不是的三件事)
+- [八、踩坑清单](#八踩坑清单)
+- [仓库](#仓库)
+
+---
+
+## 做完的东西
+
+一条真实在跑的短视频生产流水线（唐诗短剧方向），拆成 **19 个 skill**：
+
+| 层 | 数量 | 内容 |
+|---|---|---|
+| 总入口 | 1 | `video-pipeline`：环节与原子 skill 对照、占位符、前置依赖 |
+| 编排 | 1 | `tangshi-pipeline`：两道确认门 + 调度 + 时序 + 成本基线 |
+| 原子 | 17 | TTS 读音校正 / 文生图 ×2 通道 / 文生视频 / 图片运镜 / 合成 / 封面 / 核验 / 复盘 / 四平台发布 / 回写 |
+
+分三处发布：
+
+```sh
+# DSH 插件（npm，零依赖）
+dsh plugin --profile web add dsh-video-pipeline
+
+# Claude Code / Codex（宿主中立仓）
+claude plugin marketplace add 439436269-ctrl/video-pipeline-skills
+claude plugin install video-pipeline@video-pipeline-skills
+```
+
+---
+
+## 一、为什么拆成「编排 + 原子」
+
+一开始它是一个巨大的 skill，什么问题都往里塞。后来发现两类内容必须分开：
+
+- **编排层**：什么时候停下来问用户、一批做几条、失败了怎么止损、什么时候允许发布。它是**判断**。
+- **原子层**：怎么用 ffmpeg 出运镜镜头、怎么调 TTS 的多音字、怎么核验音频对位。它是**能力**。
+
+分开之后有三个直接收益：
+
+1. 原子 skill 可以单独复用（我只想给一句话配音，不需要读整个流水线）。
+2. 编排可以改，原子不用动——发布节奏改了十几次，合成脚本一行没碰。
+3. 成本降到 0：编排 skill 不需要引用一大堆 API 细节，上下文占用小。
+
+我用的编排骨架是**两道确认门 + 一道质量门**：
+
+```
+选题 → 门①（报价，等用户点头才花钱）
+     → 生产（配音 / 图 / 视频 → 合成）
+     → 质量门（核验不通过不许发布）
+     → 门②（标题、封面、可见性，等用户点头）
+     → 并行发布 → 回写
+     → 数据复盘 ──┐
+                  └→ 修正选片权重与发布节奏（闭环回编排）
+```
+
+关键设计是**门必须是显式的**。我第一次做的时候没有门①，让 agent 自己判断要不要调 API 生图——结果是它在一次对话里烧掉了比预期多好几倍的钱。有了门①（先出报价、等确认）之后，成本变成可控的。
+
+---
+
+## 二、零依赖是刻意的
+
+这个插件 `dependencies` 和 `peerDependencies` **都是空的**，只 import Node 内建模块。
+
+不是洁癖，是被坑过。DSH 插件生态里官方包要走 `peerDependencies`，而 semver 对**预发布版本**有个不直观的规则：范围里必须有一个比较符和目标的 `major.minor.patch` 元组完全一致、且自身带预发布标签，才会放行预发布版。
+
+也就是说这个看起来很宽的范围：
+
+```jsonc
+"@deepseek-ai/dsh-tools": ">=0.0.1-rc.1 <0.2.0"   // ❌ 静默排除 0.1.0-rc.6
+```
+
+**匹配不到** `0.1.0-rc.6`。用户会撞上一个需要手改才能解决的 `ERESOLVE`。
+
+但更根本的解法是：如果能不依赖，就别依赖。我向 `ctx.skills` 注册 skill provider 用的是普通对象（`{ name, list, get }`），不需要 import 任何官方包：
+
+```js
+export function apply(ctx, config = {}) {
+  ctx.inject(['skills'], (skillCtx) => {
+    skillCtx.skills.registerProvider(() => createBundledSkillProvider(options));
+  });
+}
+```
+
+代价是我得自己写一个 frontmatter 解析器（约 180 行，支持内联标量、`|`/`>` 块标量、嵌套 map，以及严格布尔解析）。收益是这个包**不存在装不上的可能**。
+
+---
+
+## 三、让别人装得上，也让自己不被覆盖
+
+DSH 的 skill 来源有优先级（rank）：项目 100 / 用户 400-500 / 内置 600。**数字小的赢。**
+
+我的内置 skill 报的是 rank 600。这意味着：如果使用者自己有一个同名 skill，**他自己的版本胜出**，我的不会静默盖掉它。
+
+这条我专门做了端到端验证——在同一台机器上同时存在本地 skill 和插件内置副本时，让真实 agent 报告它加载到的是哪个：
+
+```
+$ dsh --profile <p> "加载 skill 'tangshi-pipeline'，报出它的文件所在目录"
+C:\Users\<user>\.agents\skills\tangshi-pipeline      ← 本机用户版（rank 500）赢了
+```
+
+反过来也要验：把 agent 的 skills 根指到一个空目录（模拟一台干净的安装机），再让 agent 列技能目录：
+
+```
+TOTAL=19     ← 正好是包内那 19 个，不多不少
+```
+
+这两条一起才说明：**插件自给自足，且不抢占**。
+
+---
+
+## 四、隐私门：发布不可逆，所以需要一道机器门
+
+我开工时的判断是「这插件没有隐私信息」。**这个判断是错的。** 实测扫出：
+
+- 一枚 **46 字符的真 API key**（`ARK_KEY.txt`）
+- 硬编码的 **12 条抖音作品 ID**、一张 **EP→BV 映射表**、B 站 UID、视频号 FINDER_ID、小红书笔记/合集 ID
+- 个人绝对路径、NAS 内网地址、平台签名 URL（带时效 token）
+- **170 个只属于我个人项目历史的文件**（真实播放数据快照、合集映射、逐集一次性脚本、操作截图）
+- 第三方作者的微信号与二维码（在上游 README 里）
+
+所以我没有手改，而是写了一个**可复现导入器**，三件事都声明式地写在一个文件里：
+
+```
+tools/scrub-rules.mjs
+  DROP_PATTERNS      剔除哪些文件（路径规则 + 理由）
+  SCRUB_RULES        文件内替换什么（有序，最具体的先替换）
+  DOC_FIXES          文档准确性改写（与脱敏分开计数）
+  RESIDUAL_PATTERNS  独立的复扫规则（比脱敏规则更宽）
+```
+
+```sh
+node tools/import-skills.mjs --audit   # 只报告：会保留/脱敏/剔除哪些
+node tools/import-skills.mjs --write   # 重建 skills/
+node tools/import-skills.mjs --verify  # 隐私门 + 语法门（发布前必过）
+```
+
+`--verify` 是**独立**的复扫：它不信任脱敏规则，重新按形态扫一遍，并且**对所有脚本做语法解析**。
+
+为什么要有语法那一关？因为我自己踩过：我写了一条「签名 URL」脱敏规则，把 JS 里的解析正则
+
+```js
+const m = (url || '').match(/encfilekey=([^&]*)/);
+```
+
+替换成了
+
+```js
+const m = (url || '').match(/encfilekey=<签名>&]*)/);
+```
+
+**脱敏把代码改坏了。** 而且这条规则本身是多余的（真实的签名值只存在于已经被剔除的数据快照里）。加了「逐个脚本语法解析」之后，这类损伤再也不可能溜过去。
+
+最终：剔除 175 个文件、脱敏 35 个、改写 15 处、**残留 0 处**、33 个脚本语法全通过。
+
+顺带一个副产品：我加了一节**跨 skill 引用审计**——拿本机 skill 名单比包内名单，列出「正文提到、但没打进包」的 skill。因为**在作者机器上这种悬空引用永远看不出来**，装到别人机器上才会炸。首轮扫出 1 处（某个 skill 的「配套 skill」其实来自第三方、且路径写死），处置是把文档说准而不是擅自扩大打包范围。
+
+---
+
+## 五、我学到的最有用的一条：断言要会咬人
+
+这条值得单独说，因为它改变了我的工作方式。
+
+**一条通过的断言，不代表它会咬人。** 我新加了一条检查：「包内文档必须与最后一次提交一致」。写完我顺手做了个反向测试——故意改一个字节。
+
+**它照样通过。**
+
+原因很蠢：打包（`npm pack`）本来就取自工作区，而我把包内文档跟**工作区**比——两边永远是同一份，这个断言在数学上不可能失败。
+
+改成跟 **`git HEAD`** 比之后：
+
+```
+反向（README 有未提交改动） → exit 1  ❌ README.md 与最后一次提交不一致
+正常                        → exit 0  ✅ 包内 4 个文档与最后一次提交逐字节一致
+```
+
+它真正防的是「改了文档却没提交就打包发布」——npm 渲染的正是那份 README，没进版本库的内容不该出现在 npm 页面上。
+
+同一轮里还有两个同类问题：
+
+| 问题 | 现象 | 为什么难发现 |
+|---|---|---|
+| `if (!bad.length)` | 一行确认永远不打印，等于静默跳过检查 | `!` 取的是**函数对象**的 length（参数个数＝1），恒假 |
+| `claude plugin validate` | `plugin.json` 写坏只给 warning，**exit 仍为 0** | 我故意把 plugin.json 写成缺 `name` 的坏 JSON 才试出来 |
+
+还有一次是 PowerShell 的 BOM：我用 `Set-Content -Encoding UTF8` 写清单 JSON，PS 5.1 会加 BOM，Claude 那边报 `JSON Parse error: Unrecognized token ''`。我的自检把它拦下了——但如果我只依赖 `claude plugin validate`，这个包就会带着坏清单发出去。
+
+**现在的规矩：每加一条检查，先试着让它失败一次。**
+
+---
+
+## 六、分发：一个源，两个宿主仓
+
+同一套 skill 我发了两个地方：
+
+- `dsh-video-pipeline`（npm 包）：DSH 插件，自带 skill provider，挂载即用
+- `video-pipeline-skills`（GitHub 仓）：宿主中立，给 Claude Code / Codex
+
+关键决定是**不复刻内容**。第二个仓是第一个仓的**下游产物**，由一个生成器单向导出：
+
+```sh
+node tools/sync-skills.mjs --from <上游仓> --check   # 比对漂移（有漂移非零退出）
+node tools/sync-skills.mjs --from <上游仓> --write   # 重新生成
+```
+
+导出时只做三件宿主差异处理：
+
+1. **`{{TOKEN}}` → 可读默认值。** DSH 会在加载 skill 时替换占位符，别的宿主没有这个机制。占位符默认值表直接 `import` 上游的 `lib/placeholders.js`——不另抄一份，避免两边漂移。
+2. **在入口 skill 插入宿主说明**，用**结构性插入**（找 frontmatter 结束行插一段 blockquote），而不是逐字替换散文。逐字替换会随正文改动静默失效——这个坑我在别处已经栽过。
+3. **行尾统一 LF。**
+
+Claude Code 那个仓的布局是「仓根同时是插件市场与插件」：
+
+```
+.claude-plugin/marketplace.json    # 市场清单，plugins[0].source = "./"
+.claude-plugin/plugin.json         # 插件清单
+skills/<19 个>/SKILL.md
+AGENTS.md                          # 给 Codex 的索引入口
+install.mjs                        # 也可以不用插件机制，直接装进宿主目录
+```
+
+这个结构我**实测过**：
+
+```
+$ claude plugin marketplace add 439436269-ctrl/video-pipeline-skills
+√ Successfully added marketplace: video-pipeline-skills
+$ claude plugin install video-pipeline@video-pipeline-skills
+√ Successfully installed plugin: video-pipeline@video-pipeline-skills (scope: user)
+$ claude plugin list
+  > video-pipeline@video-pipeline-skills   Version: 0.1.1   Status: √ enabled
+```
+
+插件缓存里确实是 19 个 skill，而且**不会污染**用户级 `~/.claude/skills`（插件 skill 落在插件缓存目录）。
+
+验证完我把它卸了——因为它会给我每个 Claude Code 会话增加 19 个 skill 的上下文开销，这个选择应该由使用者做，而不是我替他做。
+
+---
+
+## 七、看起来像失败、其实不是的三件事
+
+**1. npm publish 成功 ≠ 立刻上线。** npm 用 staged publishing：tarball 先进暂存区，再由 registry 自动 promote。窗口期内：
+
+- `dist-tags.latest` 还是旧版本
+- `GET /<name>/<newver>` 返回 404
+- 同版本重发报 `409 Cannot publish over previously staged version`（**这恰好证明它在暂存区**）
+- 新包还会多出一个 `0.0.0-stage` 占位版
+
+**全都不是失败。** 我实测这次 promote 约 2 分钟（官方口径可以更久）。窗口期内改版本号重发，才是真的给自己找麻烦。
+
+**2. npm 页面渲染的是「该版本 tarball 里的 README」。** 你改了仓库 README，npm 页面上纹丝不动。想让 npm 页面更新，必须发一个新版本——哪怕只改了一个字。反过来说：**只改文档也值得发一个版本**。
+
+**3. README 里的图，相对路径在 npm 上看不到。** 必须用 GitHub raw 绝对地址；图片本身不必进 `files` 白名单（npm 是去 URL 取的）。同时注意顺序：如果图指向一个还不存在的仓库，npm 页面上就是裂图——但这个会自愈（图是渲染时按 URL 取的），不需要为它重发版本。
+
+---
+
+## 八、踩坑清单
+
+| 坑 | 根因 | 对策 |
+|---|---|---|
+| 锚定路径规则在加了前缀后静默失效 | `^name$` 匹配不到 `<skill>/name` | 规则改 `(^|/)name$`，并加反向测试 |
+| 脱敏改坏源码 | 内容规则命中了代码里的参数名 | 门里加「逐个脚本语法解析」 |
+| `extname('LICENSE')` 是空串 | 无扩展名文件被判成二进制 | 显式维护文本文件名表 |
+| Windows 上 PS 5.1 读写 UTF-8 文件 | `Get-Content -Raw` 按 ANSI 读，`Set-Content -Encoding UTF8` 加 BOM | 用编辑工具而不是 shell 往返；JSON 断言严格解析 |
+| `npm.cmd` 不能直接 spawn | Node 20+ 对 `.cmd` 的安全加固（CVE-2024-27980） | 经 shell 调用并给路径加引号 |
+| `git credential fill` 挂住 120 秒 | 无凭据时弹了凭据管理器窗口 | 探测时设 `GIT_TERMINAL_PROMPT=0` + GCM 非交互 |
+| 图看着没问题、实际压住文字 | 我只跑了代码没看图 | **每张生成的图都读一遍**（改数据重跑，比手改强） |
+
+最后一条让我在同一张图上改了 4 版：名字溢出压住连线标签、边标签叠在卡片上、跨卡片的边从卡片身上穿过去、以及**我自己写数据时把长名字缩写成了 `…-orchestrator`**。图是生成器产出的（节点和边是数据），所以每轮改动就是改数据重跑、再看一眼。
+
+---
+
+## 仓库
+
+- DSH 插件（npm，零依赖）：<https://github.com/439436269-ctrl/dsh-video-pipeline> · <https://www.npmjs.com/package/dsh-video-pipeline>
+- Claude Code / Codex（宿主中立）：<https://github.com/439436269-ctrl/video-pipeline-skills>
+
+前置依赖：**ffmpeg**、**Python 3 + Pillow**、**Node.js**，以及各平台自己的登录凭据。这两个仓都**不含任何凭据**——上面第四节就是为此存在的。
+
+如果这套东西对你有用，或者你在做类似的「把 AI 工作流固化成可复用资产」的事，欢迎交流。我踩过的坑比上面写出来的多，评论区可以接着聊。

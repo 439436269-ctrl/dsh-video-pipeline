@@ -27,6 +27,8 @@
 
 装完不需要往 `~/.agents/skills` 或 `~/.dsh/skills` 复制任何文件——插件自己注册一个 skill provider，把包内的 `skills/` 目录提供给 `ctx.skills`。
 
+同一套 skill 还有一个**宿主中立版**，给 Claude Code / Codex 用（不带 DSH 的插件机制，占位符已落成可读值）：<https://github.com/439436269-ctrl/video-pipeline-skills>。
+
 ## 这个插件做了什么
 
 - **提供 19 个 skill**（总入口 1 + 编排 1 + 原子 17），覆盖选题、配音、出图、出视频、运镜、合成、封面、核验、数据复盘、多平台发布、进度回写。
