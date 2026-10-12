@@ -1,6 +1,11 @@
 # 19 个 skill 撑起一条短视频流水线：编排怎么调度，17 个原子各做什么
 
-**先看成品**：B 站合集已经更到 **EP150**（每个合集 150 集）——[读诗版](https://www.bilibili.com/video/BV1uupE6bEru) · [故事版](https://www.bilibili.com/video/BV18MpE6FEs6)。
+**先看成品**：B 站合集已经更到 **EP150**（每个合集 150 集）
+
+- 读诗版：https://www.bilibili.com/video/BV1uupE6bEru
+- 故事版：https://www.bilibili.com/video/BV18MpE6FEs6
+
+> 公众号正文不能带外链，所以这里直接写成地址，复制即可打开。
 
 我做了一条真实在跑的短视频流水线（唐诗短剧方向），把它拆成了 19 个 skill，现在装进 agent 就能用。
 
@@ -114,8 +119,8 @@ claude plugin install video-pipeline@video-pipeline-skills
 
 需要自己准备：**ffmpeg**、**Python 3 + Pillow**、**Node.js**，以及各平台自己的登录凭据。**这套东西不含任何凭据。**
 
-- 仓库：[dsh-video-pipeline](https://github.com/439436269-ctrl/dsh-video-pipeline)
-- 宿主中立版：[video-pipeline-skills](https://github.com/439436269-ctrl/video-pipeline-skills)
-- npm：[dsh-video-pipeline](https://www.npmjs.com/package/dsh-video-pipeline)
+- 仓库：https://github.com/439436269-ctrl/dsh-video-pipeline
+- 宿主中立版：https://github.com/439436269-ctrl/video-pipeline-skills
+- npm：https://www.npmjs.com/package/dsh-video-pipeline
 
 流水线的价值不在「自动化」，在于它把流程里的判断留下来了。如果你也在做类似的事，欢迎交流。
