@@ -23,7 +23,7 @@ claude plugin marketplace add 439436269-ctrl/video-pipeline-skills
 claude plugin install video-pipeline@video-pipeline-skills
 ```
 
-**插图 1：`docs/skill-flow.png`（19 个 skill 的关系与数据流）**
+这 19 个 skill 之间的关系与数据流是这样的：
 
 但真正想跟你聊的不是功能，是发布前那道坎。
 
