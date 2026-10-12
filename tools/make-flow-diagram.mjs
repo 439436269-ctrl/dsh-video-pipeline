@@ -148,7 +148,10 @@ const CARD_GAP = 10;
 const MAX_CARDS = 6;
 const LOOP_Y = CARD_Y + MAX_CARDS * (CARD_H + CARD_GAP) + 30;
 const LOOP_H = 72;
-const FOOT = 24;
+// 底部留出一条空白带：知乎上传图片会在**右下角**压水印（实测把 feishu-bitable 与
+// tangshi-data-review 两张卡盖住）。水印永远贴着图片右下角，所以只要让右下角是空的即可。
+// 这条带左半边用来放仓库链接（顺带说清装在哪），右半边刻意留空给水印。
+const FOOT = 96;
 
 const colX = (i) => M + i * (COL_W + GAP);
 const WIDTH = M * 2 + COLUMNS.length * COL_W + (COLUMNS.length - 1) * GAP;
@@ -274,6 +277,10 @@ for (const node of LOOP_BAND.nodes) {
   out.push(`  <text x="${x + 10}" y="${y + 17}" font-size="${fitName(node.name, COL_W - 20).size}" font-weight="600" fill="${s.text}" font-family="ui-monospace,Consolas,monospace">${ESC(node.name)}</text>`);
   out.push(`  <text x="${x + 10}" y="${y + 33}" font-size="9.5" fill="#57606a">${ESC(fitText(node.note, COL_W - 18, 9.5))}</text>`);
 }
+
+// 页脚：放仓库链接（左对齐）。右半边保持空白，把右下角让给知乎水印。
+out.push(`  <text x="${M}" y="${HEIGHT - 26}" font-size="11" fill="#57606a">DSH 插件：github.com/439436269-ctrl/dsh-video-pipeline</text>`);
+out.push(`  <text x="${M}" y="${HEIGHT - 11}" font-size="11" fill="#57606a">Claude Code / Codex 宿主中立版：github.com/439436269-ctrl/video-pipeline-skills</text>`);
 
 /**
  * 直角走线。

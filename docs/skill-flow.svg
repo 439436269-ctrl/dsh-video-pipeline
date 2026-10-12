@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1356 656" width="1356" height="656" font-family="'Microsoft YaHei','PingFang SC',-apple-system,sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1356 728" width="1356" height="728" font-family="'Microsoft YaHei','PingFang SC',-apple-system,sans-serif">
   <defs>
     <marker id="arrowData" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a7f37" stroke-width="1.6"/></marker>
     <marker id="arrowCall" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#8b949e" stroke-width="1.6"/></marker>
     <marker id="arrowGate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#d97706" stroke-width="1.6"/></marker>
     <marker id="arrowLoop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#b91c1c" stroke-width="1.6"/></marker>
   </defs>
-  <rect width="1356" height="656" fill="#fafbfc"/>
+  <rect width="1356" height="728" fill="#fafbfc"/>
   <text x="678" y="34" text-anchor="middle" font-size="17" font-weight="600" fill="#1a1a1a">dsh-video-pipeline · 19 个 skill 的关系与数据流</text>
   <text x="678" y="56" text-anchor="middle" font-size="11.5" fill="#57606a">按流水线阶段排列；实线＝产物数据流，虚线＝调度/调用，橙色＝质量门，红色虚线＝数据复盘闭环</text>
   <rect x="36" y="72" width="13" height="13" rx="3" fill="#e8f0fe" stroke="#2563eb"/>
@@ -96,6 +96,8 @@
   <rect x="1152" y="586" width="168" height="40" rx="6" fill="#fde8e8" stroke="#b91c1c" stroke-width="1.2"/>
   <text x="1162" y="603" font-size="11.5" font-weight="600" fill="#7f1d1d" font-family="ui-monospace,Consolas,monospace">feishu-bitable</text>
   <text x="1162" y="619" font-size="9.5" fill="#57606a">进度 / 逐集实录回写</text>
+  <text x="36" y="702" font-size="11" fill="#57606a">DSH 插件：github.com/439436269-ctrl/dsh-video-pipeline</text>
+  <text x="36" y="717" font-size="11" fill="#57606a">Claude Code / Codex 宿主中立版：github.com/439436269-ctrl/video-pipeline-skills</text>
   <path d="M204,173 H213 V173 H222" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
   <path d="M390,173 H399 V173 H408" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
   <path d="M390,173 H500 V173 H594" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
