@@ -130,6 +130,38 @@ test('fixText marks out-of-bundle skill mentions as external', () => {
   }
 });
 
+test('dropReason removes the author-requested data-review files', () => {
+  // The author asked for these not to be kept; the numbers they contained were
+  // also stripped from the orchestration skill body (see DOC_FIXES).
+  for (const name of [
+    'data-review-ep15-20.md',
+    'data-review-ep21-30.md',
+    'data-review-ep21-40-48h.md',
+    'data-review-ep41-60.md',
+    'data-review-ep61-70.md',
+  ]) {
+    assert.match(dropReason(`tangshi-pipeline/references/${name}`) ?? '', /作者要求不保留/);
+  }
+  // Research docs carry public third-party facts (model prices, other people's
+  // public videos), not the author's operational data — they ship.
+  assert.equal(dropReason('tangshi-pipeline/references/research-cost-t195.md'), undefined);
+  assert.equal(dropReason('tangshi-pipeline/references/research-beauty-t196.md'), undefined);
+});
+
+test('fixText strips measured play figures from the orchestration skill', () => {
+  const body = [
+    '  - **每天 1-2 条、间隔 ≥4h、铺满 24 小时窗口**（禁复刻 EP15-20 的 6 小时连发 12 条——同质内容互抢推荐池，EP18/19 因此只拿 33 播放）',
+    '| ② 画面感强（奇观/边塞/夜景/冲突） | **第一** | 边塞 EP15/17=285/275、夜景 EP16=262 vs 长诗抒情 EP18/19=33，8 倍差 |',
+    '- 完整复盘数据表（36 行实采 + 6 洞察 + 放量清单）：`references/data-review-ep15-20.md`。',
+  ].join('\n');
+  const { text, applied } = fixText(body);
+  assert.doesNotMatch(text, /33 播放|285|275|262|36 行实采/);
+  assert.doesNotMatch(text, /data-review-ep15-20\.md/, 'pointer to a dropped file must go too');
+  assert.match(text, /实测会让整体表现一起塌掉/);
+  assert.match(text, /高一个数量级/);
+  assert.equal(applied.length, 3);
+});
+
 test('every residual pattern is a RegExp with a non-empty description', () => {
   for (const entry of RESIDUAL_PATTERNS) {
     assert.ok(entry[0] instanceof RegExp);

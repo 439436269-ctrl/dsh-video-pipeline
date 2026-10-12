@@ -114,12 +114,12 @@ dsh plugin --profile web remove dsh-video-pipeline
 - **替换为占位符**：飞书 base/table/record ID、NAS 路径与内网地址、本机绝对路径、以及真实账号/作品标识（视频号 FINDER_ID、抖音 aweme_id、B 站 UID 与 seasonId、小红书笔记与合集 ID、B 站稿件号）。
 - **保留但清空为模板**：4 个「被剔除但脚本仍要读」的输入文件，以空结构随包（`heji-state.json`、`map-dushi.json`、`map-gushi.json`、`dy_t.example.json`）。
 
-复扫门检查 4 类东西：密钥/账号标识/本机路径/内网地址残留、33 个脚本的语法可解析性（防止脱敏改写坏代码）、被剔除文件仍被引用、以及 SKILL.md 是否可被 provider 正常解析。当前结果：**90 个文件、0 处残留、语法全通过**。
+复扫门检查 4 类东西：密钥/账号标识/本机路径/内网地址残留、33 个脚本的语法可解析性（防止脱敏改写坏代码）、被剔除文件仍被引用、以及 SKILL.md 是否可被 provider 正常解析。当前结果：**85 个文件、0 处残留、语法全通过**。
 
 ### 已知边界
 
 - 部分脚本的**输入**是采集脚本自己写出的产物（`posts.json`、`*-stats.json`、`dy_works_all.json`），首次运行前并不存在——先跑采集再跑分析。`tools/import-report.txt` 列出了全部这类引用。
-- 历史复盘文档（`tangshi-pipeline/references/data-review-*.md`）保留了**方法论与经验结论**；其中的具体播放数字来自原作者的真实运营，对应的数据文件未随包。（作者的公开作品集公开了这个短剧项目与一条 EP01 链接，但没有公开播放量；若要连数字一并剥离，改 `tools/scrub-rules.mjs` 后重跑导入。）
+- **不含真实运营数据**：`tangshi-pipeline` 的五份数据复盘文档（`references/data-review-*.md`）**已按作者要求剔除**，正文里对作者账号播放表现的绝对数字与实测倍率也一并改写成定性规则（改写与脱敏分开计数，见 `tools/import-report.txt`）。保留下的是提炼后的可执行规则——产能上限、发布时段、采样制度、选片权重；要复现同样的口径，用 `tangshi-data-review` 的采集脚本对自己的账号重跑。
 - `xiaohongshu-skills` 是第三方 MIT 代码；上游 README（含赞助位与作者联系方式）未随包。
 - **有一处正文提到本包未含的外部 skill**：`bilibili-upload` 的「论文视频投稿」路径依赖外部 skill `paper-bilibili-uploader`（来自第三方 `yhbcode000/paper-share-skills`）。本包不含它，相关章节已标明为外部；B 站投稿引擎 `biliup` 本身已包含。导入报告里会列出所有这类「提到但未打进包」的 skill（`tools/import-report.txt`）。
 
