@@ -16,6 +16,7 @@
  * rejected, and says so rather than pretending to be a parser.
  */
 
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -139,6 +140,25 @@ for (const url of urls) {
   const relative = segments.join('/');
   if (existsSync(join(ROOT, relative))) ok(`图文件在仓库里：${relative}`);
   else bad(`图地址指向 ${relative}，但仓库里没有这个文件（raw 链接会 404）`);
+}
+
+console.log('\n四、仓库里不该有的调试产物');
+// 起因（2026-10-12）：发布/插图脚本失败时会自动截图到封面同目录（WX_OUT/ZH_OUT 默认取封面目录），
+// 内容是公众号后台页面——**含账号昵称**。git add -A 未审查清单就把它带进了公开仓库，
+// 最后只能 filter-branch 改写历史 + 强推。所以这里把它变成会失败的门。
+const trackedFiles = (() => {
+  try {
+    return execFileSync('git', ['ls-files'], { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean);
+  } catch {
+    return null;
+  }
+})();
+if (trackedFiles === null) {
+  info('不是 git 仓库或 git 不可用，跳过');
+} else {
+  const suspects = trackedFiles.filter((f) => /(^|\/)([^/]*fail[^/]*\.(png|jpg|jpeg)|inserted-final\.png)$/i.test(f));
+  if (suspects.length) bad(`跟踪了调试截图（后台页面，含账号信息，禁止入库）：${suspects.join('、')}`);
+  else ok(`没有跟踪调试截图（共检查 ${trackedFiles.length} 个受跟踪文件）`);
 }
 
 console.log(`\n${problems.length ? `仓库元数据检查未通过：${problems.length} 个问题` : '仓库元数据检查通过'}`);
