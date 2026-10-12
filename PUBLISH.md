@@ -5,7 +5,8 @@
 > | 步骤 | 状态 |
 > |---|---|
 > | ① GitHub 建仓 + 推送 | ⏳ **待办** —— 缺 GitHub 凭据（`credential.helper=manager` 已配置但未存 github.com 凭据；非交互探测报 `Cannot prompt because user interactivity has been disabled`）。建仓 API 也需要 token；或由作者在网页端建好空仓后我只做 push。 |
-> | ② npm 发布 | ✅ **已完成** —— `dsh-video-pipeline@0.1.0`，shasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`（与本地打包逐字节一致）。详见 `VERIFY.md` 第 8 节。 |
+> | ② npm 发布 | ✅ **0.1.0 已完成** —— shasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`（与本地打包逐字节一致）。详见 `VERIFY.md` 第 8 节。 |
+> | ②b npm 发布 0.1.1（仅文档） | ⏸ **已备好，等作者点头** —— 目的是让 npm 页面显示新的 README（含 skill 关系图）。`package.json` 已升到 0.1.1、CHANGELOG 已写、四道门与打包验证已过；一条 `npm publish` 即可，之后同样是 2~12 分钟 promote 窗口。 |
 > | ③ 市场 PR | ⏸ 待 ① 建仓，且仓库创建满 1 天。账号下**已有 `awesome-dsh-plugin` 的 fork**，可跳过 fork 那步。 |
 >
 > 🔑 npm token 已存入 `~/.secrets/keys.env`（唯一真源，权限已收敛到仅本人、去继承），配套 `load.ps1` / `load.sh` 读取脚本已就位，用 `. $HOME\.secrets\load.ps1` 载入。**注意**：这一枚 token 已出现在对话记录里，建议尽快到 npm 设置 revoke，再新建一枚替换 `keys.env` 里的值。
@@ -16,8 +17,8 @@
 
 | 项 | 值 |
 |---|---|
-| npm 包名 | `dsh-video-pipeline`（已查重：registry 404，可用） |
-| 版本 | `0.1.0` |
+| npm 包名 | `dsh-video-pipeline`（已发布 0.1.0） |
+| 版本 | `0.1.1`（仅文档，待发布） |
 | GitHub 仓库 | `439436269-ctrl/dsh-video-pipeline`（目标，尚未创建） |
 | 市场条目文件 | `data/plugins/439436269-ctrl__dsh-video-pipeline.yml`（内容见 `publish/market-entry.yml`） |
 | 市场分类 | `skill` |

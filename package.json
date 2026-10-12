@@ -1,6 +1,6 @@
 {
   "name": "dsh-video-pipeline",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "短视频流水线 skill 包：把一条「编排 skill + 原子 skill」的 AI 短剧生产流水线（TTS 读音校正、文生图/文生视频、图片运镜、成片合成、封面、成片核验、多平台发布）作为内置 skill 装进 DeepSeek Harness，装完即出现在 agent 的技能目录里。Bundled skill pack for DSH: one orchestration skill plus its atomic production skills, shipped inside the plugin and served through a built-in skill provider.",
   "keywords": [
     "dsh",
