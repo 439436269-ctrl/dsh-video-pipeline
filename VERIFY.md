@@ -262,15 +262,16 @@ stderr: 0 字符
 
 ## 7. 未验证 / 已知边界
 
-- **未发 npm、未建 GitHub 仓库**。前置条件实测（2026-10-11）：
+- **npm 已发布；GitHub 仓库尚未创建**（2026-10-11）：
 
   | 需要 | 状态 |
   |---|---|
-  | GitHub 凭据 | ❌ `credential.helper=manager` 已配置但未存 github.com 凭据；非交互探测报 `Cannot prompt because user interactivity has been disabled` → 首次 push 需弹窗授权或提供 token |
-  | npm Automation token | ❌ `~/.secrets/keys.env` 不存在，`NPM_AUTOMATION_TOKEN` 未设置 |
-  | 市场 PR | ⏸ 需仓库创建满 1 天后才能提（CI 自动检查仓库年龄） |
+  | npm Automation token | ✅ 由作者提供，仅用于一次发布：写入临时 npmrc → `npm whoami` 确认账号 `vfvrpq` → `npm publish` → **立即删除**；未落任何持久文件、未进 git |
+  | npm 包 | ✅ `dsh-video-pipeline@0.1.0` 已上传（发布记录见第 8 节） |
+  | GitHub 凭据 | ❌ 仍未提供：`credential.helper=manager` 已配置但未存 github.com 凭据，非交互探测报 `Cannot prompt because user interactivity has been disabled` → 建仓 + `git push` 需要作者授权 |
+  | 市场 PR | ⏸ 需先建仓，且仓库创建满 1 天后才能提（CI 自动检查仓库年龄） |
 
-  本机已建本地 git 仓库并完成首次提交（`main`，109 文件），发布坐标与命令见 `PUBLISH.md`。
+  本地 git 仓库已就绪（`main`，见第 8 节提交号），发布坐标与命令见 `PUBLISH.md`。
 
 - **发布链路未在真实平台跑过**：本包只提供 skill，不含可离线执行的生产流水线；`quad-platform-publish` 等 skill 的执行需要平台凭据，未在本包内验证。
 - **不含真实运营数据**：`tangshi-pipeline` 的五份数据复盘文档（`references/data-review-*.md`，含逐集播放量、放量清单、五轮复盘推理）**按作者要求整体剔除**；正文里对作者账号播放表现的绝对数字与实测倍率（如「EP18/19 因此只拿 33 播放」「12条=1.35×」这类）也改写成定性规则。原先我按「剥离真实播放数据 JSON」的口径保留了这些 md 与其中的数字，作者明确否决后已改为不保留任何数字。
@@ -279,3 +280,36 @@ stderr: 0 字符
 
   剔除后独立复扫：`÷` / `1.35×` / `0.69×` / `÷109` / `102.7` / `3164` / `0.995` / `T108/T127/T166/T181` 全部 0 命中；仅剩 `1360×1800`（图片尺寸）、`6×0.12`（价格算式）这类与运营数据无关的数字。
 - 部分脚本引用的输入（`posts.json`、`*-stats.json`、`dy_works_all.json`）需先跑采集脚本产出；`tools/import-report.txt` 列出了全部这类引用。
+
+## 8. npm 发布记录（P7）
+
+```
+$ node tools/preflight.mjs
+（本地全绿；两条外部条件：npm token 缺失、GitHub 凭据未存）
+exit 0
+
+$ npm pack --pack-destination <tmp>
+dsh-video-pipeline-0.1.0.tgz
+sha1   7c40c1647b549b737c65497bb6b51c94d85ee1ff
+sha256 87906c7cc625d2c0ca4e1d1a54c7cb0cd3e6fb60125fb07f78dfb44c2389d9ff
+tar 条目 95
+
+$ # 临时 npmrc（600，仅本次发布存活）
+$ npm whoami
+vfvrpq
+
+$ npm publish --registry https://registry.npmjs.org/
++ dsh-video-pipeline@0.1.0
+npm notice shasum:    7c40c1647b549b737c65497bb6b51c94d85ee1ff
+npm notice integrity: sha512-XRVKYD01rv4ZF[...]pkH0a9xuTINJw==
+npm notice total files: 95
+临时 npmrc 已删除
+```
+
+**关键一致性**：npm 报告的 `shasum` 与本地打包的 sha1 **逐字节相同**（`7c40c164…`），即上传的产物就是我逐项验证过的那一份。
+
+发布采用 npm 的 **staged publishing**：`npm publish` 打印成功只代表进暂存区，registry 自动 promote 需要 6~12 分钟。窗口期内 `GET /<name>/<version>` 返回 404、`dist-tags.latest` 仍指向旧值（本包是新包，窗口期内该包尚无 `latest`）、同版本重发报 `409 Cannot publish over previously staged version` —— **都不是失败**。为了不误判，另起后台任务轮询两个独立端点（`/-/package/<name>/dist-tags` 与 `/<name>/<version>`）直到二者都指向 0.1.0。
+
+回读校验用 `dsh-plugin-publish-npm` 自带的 `scripts/verify_npm_artifact.py`（比对 `dist.shasum` / `dist.integrity`，并把 registry 上的 tarball 与本地 tgz 逐字节对比）。
+
+**待办**：发布用的 npm token 已出现在对话记录中，作者需在确认发布无误后到 npm 设置里 **revoke**。仓库侧还需建 GitHub 仓库（README 顶部的编排图用 raw 绝对地址，仓库公开后该图才会显示），再满 1 天后提市场 PR。
