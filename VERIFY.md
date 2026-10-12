@@ -210,6 +210,41 @@ FEISHU_TABLE = tblOVERRIDDEN
 
 配置从 patch 层 → 宿主 → 插件 → 正文替换全链路生效。验证后已把该 profile 的 patch 恢复为 `[]`。
 
+## 4g. 配置面（`enabledSkills` 过滤）
+
+另一个写在 README 里、同样从未验证过的键。`enabledSkills` 非空时只放出指定的 skill：
+
+```yaml
+- id: dsh-video-pipeline
+  config:
+    enabledSkills:
+      - video-compose
+      - media-verify
+      - video-pipeline
+```
+
+```
+$ dsh --profile video-npm --dump-config | grep -A5 dsh-video-pipeline
+> # == dsh-video-pipeline, patched by ...\video-npm\cordis.patch.yml
+- id: dsh-video-pipeline
+  name: dsh-video-pipeline
+    config:
+      enabledSkills:
+        - video-compose
+        - media-verify
+        - video-pipeline
+stderr 空
+
+$env:DSH_AGENTS_HOME = <空目录>
+$ dsh --profile video-npm "把技能目录里所有 skill 的 name 逐行列出来，最后输出 TOTAL=N"
+media-verify
+video-compose
+video-pipeline
+TOTAL=3
+```
+
+过滤生效：从 19 个收窄到配置的 3 个。这次跑的是**从 registry 安装的那份**，所以两个配置键都在真实分发包上验过了。验证后同样把 patch 恢复为 `[]`。
+
 ## 5. 发布物检查（P7 前置）
 
 ```

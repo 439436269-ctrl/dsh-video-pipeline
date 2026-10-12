@@ -40,12 +40,13 @@
   },
   "scripts": {
     "test": "node --test test/provider.test.mjs test/rules.test.mjs",
-    "check": "node --check lib/index.js && node --check lib/provider.js && node --check lib/frontmatter.js && node --check lib/placeholders.js && node --check tools/scrub-rules.mjs && node --check tools/import-skills.mjs && node --check tools/verify-artifact.mjs && node --check tools/preflight.mjs",
+    "check": "node --check lib/index.js && node --check lib/provider.js && node --check lib/frontmatter.js && node --check lib/placeholders.js && node --check tools/scrub-rules.mjs && node --check tools/import-skills.mjs && node --check tools/verify-artifact.mjs && node --check tools/preflight.mjs && node --check tools/setup-repo.mjs",
     "import:audit": "node tools/import-skills.mjs --audit",
     "import:write": "node tools/import-skills.mjs --write",
     "privacy-gate": "node tools/import-skills.mjs --verify",
     "verify:artifact": "node tools/verify-artifact.mjs",
-    "preflight": "node tools/preflight.mjs"
+    "preflight": "node tools/preflight.mjs",
+    "setup:repo": "node tools/setup-repo.mjs"
   },
   "license": "MIT",
   "author": {

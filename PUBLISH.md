@@ -45,6 +45,18 @@
 
 ### 1. GitHub 建仓 + 推送
 
+推荐用脚本（幂等、输出里不会出现 token、推送后核对远端 SHA）：
+
+```sh
+node tools/setup-repo.mjs --check     # 只自检：git 状态、凭据、仓库与 topics 规则
+node tools/setup-repo.mjs             # 建仓（已存在则跳过）+ 设 topics + push + 核对远端 SHA
+node tools/setup-repo.mjs --no-push   # 只建仓与设 topics
+```
+
+token 来源：`GITHUB_TOKEN` / `GH_TOKEN` / `GITHUB_PAT` 环境变量，或 `~/.secrets/keys.env` 里的同名键。脚本用带 token 的 URL 推一次，**随后立刻把 remote 换回干净地址**（不把 token 留在 `.git/config`），并把捕获到的输出里出现的 token 替换成 `<token>` 再打印（git 会回显 URL）。
+
+等价的纯手工命令（脚本不能跑时用）：
+
 ```sh
 # 建仓（API，topic 只能小写 ASCII，dsh-plugin 必带）
 #   POST https://api.github.com/user/repos
