@@ -356,6 +356,8 @@ const svg = `${out.join('\n')}\n`;
 mkdirSync(OUT_DIR, { recursive: true });
 const svgPath = join(OUT_DIR, 'skill-flow.svg');
 const pngPath = join(OUT_DIR, 'skill-flow.png');
+// 2.35:1 版（两侧补白）：公众号封面必须是这个比例，否则默认居中裁剪切掉标题或页脚
+const widePngPath = join(OUT_DIR, 'skill-flow-wide.png');
 writeFileSync(svgPath, svg);
 console.log(`SVG: ${svgPath}  (${WIDTH}×${HEIGHT}, ${(svg.length / 1024).toFixed(1)} KB)`);
 
@@ -371,21 +373,29 @@ if (!chrome) {
 const stage = mkdtempSync(join(tmpdir(), 'dsh-flow-'));
 try {
   const htmlPath = join(stage, 'stage.html');
-  writeFileSync(htmlPath, `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#fafbfc}svg{display:block}</style>${svg}`);
-  execFileSync(chrome, [
-    '--headless=new',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    '--force-device-scale-factor=' + SCALE,
-    `--window-size=${WIDTH},${HEIGHT}`,
-    `--screenshot=${pngPath}`,
-    `file:///${htmlPath.replace(/\\/g, '/')}`,
-  ], { stdio: ['ignore', 'ignore', 'pipe'], timeout: 120000 });
-  if (!existsSync(pngPath)) {
-    console.error('截图未生成');
-    process.exit(1);
-  }
-  console.log(`PNG: ${pngPath}  (${(statSync(pngPath).size / 1024).toFixed(0)} KB, ${SCALE}x)`);
+  // 页面用 flex 居中：同一份 HTML 可以按两种窗口宽度截图 ——
+  // ① 原始比例（窗口 = 图宽）② 公众号封面比例 2.35:1（窗口更宽，图两侧补白、内容不裁）
+  writeFileSync(htmlPath, `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;padding:0;background:#fafbfc}body{display:flex;align-items:center;justify-content:center;min-height:100vh}svg{display:block}</style>${svg}`);
+  const shot = (w, h, path) => {
+    execFileSync(chrome, [
+      '--headless=new',
+      '--disable-gpu',
+      '--hide-scrollbars',
+      '--force-device-scale-factor=' + SCALE,
+      `--window-size=${w},${h}`,
+      `--screenshot=${path}`,
+      `file:///${htmlPath.replace(/\\/g, '/')}`,
+    ], { stdio: ['ignore', 'ignore', 'pipe'], timeout: 120000 });
+    if (!existsSync(path)) {
+      console.error('截图未生成: ' + path);
+      process.exit(1);
+    }
+    console.log(`${path.endsWith('-wide.png') ? 'PNG(2.35:1)' : 'PNG'}: ${path}  (${(statSync(path).size / 1024).toFixed(0)} KB, ${SCALE}x, ${w}×${h})`);
+  };
+
+  shot(WIDTH, HEIGHT, pngPath);
+  // 公众号封面是 2.35:1，比图本身更宽；两侧补白后整图可见，避免默认居中裁剪切掉标题或页脚
+  if (!SVG_ONLY) shot(Math.round(HEIGHT * 2.35), HEIGHT, widePngPath);
 } finally {
   rmSync(stage, { recursive: true, force: true });
 }
