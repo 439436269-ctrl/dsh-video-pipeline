@@ -312,7 +312,9 @@ npm notice total files: 95
 
 回读校验用 `dsh-plugin-publish-npm` 自带的 `scripts/verify_npm_artifact.py`（比对 `dist.shasum` / `dist.integrity`，并把 registry 上的 tarball 与本地 tgz 逐字节对比）。
 
-**待办**：发布用的 npm token 已出现在对话记录中，作者需在确认发布无误后到 npm 设置里 **revoke**。仓库侧还需建 GitHub 仓库（README 顶部的编排图用 raw 绝对地址，仓库公开后该图才会显示），再满 1 天后提市场 PR。
+**密钥存放**：作者要求把 token 存入本机唯一真源 `~/.secrets/keys.env`（该目录原先不存在，已新建；权限用 `icacls /inheritance:r /grant:r <user>:(OI)(CI)F /T` 收敛到仅本人可读，与 skill 约定的 700/600 等价）。同时补上该约定配套的 `load.ps1` / `load.sh`（内容 ASCII、不打印任何值）。验证：`. $HOME\.secrets\load.ps1` 后变量长度 40，用它做 `npm whoami` 返回 `vfvrpq`、exit 0。
+
+**待办**：`keys.env` 里这一枚 token **已出现在对话记录中**，存起来只是方便，不等于没泄露——建议到 npm 设置 **revoke**，再新建一枚替换 `keys.env` 里的值（换值只需改那一行，`load.ps1` 不用动）。仓库侧还需建 GitHub 仓库（README 顶部的编排图用 raw 绝对地址，仓库公开后该图才会显示），再满 1 天后提市场 PR。
 
 ### 8b. promote 与回读校验
 

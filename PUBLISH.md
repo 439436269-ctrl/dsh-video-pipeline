@@ -8,7 +8,7 @@
 > | ② npm 发布 | ✅ **已完成** —— `dsh-video-pipeline@0.1.0`，shasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`（与本地打包逐字节一致）。详见 `VERIFY.md` 第 8 节。 |
 > | ③ 市场 PR | ⏸ 待 ① 建仓，且仓库创建满 1 天。账号下**已有 `awesome-dsh-plugin` 的 fork**，可跳过 fork 那步。 |
 >
-> ⚠️ 发布所用 npm token 已出现在对话记录里，确认无误后请到 npm 设置 **revoke**。
+> 🔑 npm token 已存入 `~/.secrets/keys.env`（唯一真源，权限已收敛到仅本人、去继承），配套 `load.ps1` / `load.sh` 读取脚本已就位，用 `. $HOME\.secrets\load.ps1` 载入。**注意**：这一枚 token 已出现在对话记录里，建议尽快到 npm 设置 revoke，再新建一枚替换 `keys.env` 里的值。
 
 > 原子的操作细节在 skill `dsh-plugin-publish-repo`、`dsh-plugin-publish-npm` 里；本文件只记录**这个仓库自己的**取值，避免每次都去回溯。
 

@@ -81,15 +81,43 @@ for (const entry of ['lib/**/*.js', 'skills/**']) {
 }
 if (pkg.files?.some((f) => /^lib\/\*\.js$/.test(f))) fail('files 用 lib/*.js 会漏子目录，应为 lib/**/*.js');
 
+/** Fetch JSON, returning `undefined` when the network or the parse fails. */
+async function json(url) {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) return undefined;
+    return await response.json();
+  } catch {
+    return undefined;
+  }
+}
+
 console.log('\n二、远端名字占用');
 if (OFFLINE) {
   info('--offline：跳过');
 } else {
   const npmStatus = await status(`https://registry.npmjs.org/${pkg.name}`);
-  if (npmStatus === 404) ok(`npm 名字空闲：${pkg.name}`);
-  else if (npmStatus === undefined) info(`npm 查询不通（网络问题，不代表撞名）`);
-  else if (npmStatus === 200) fail(`npm 上 ${pkg.name} 已存在（HTTP 200）—— 改名或确认是你要发的新版本`);
-  else info(`npm 返回 HTTP ${npmStatus}`);
+  if (npmStatus === 404) {
+    ok(`npm 名字空闲：${pkg.name}（首发）`);
+  } else if (npmStatus === 200) {
+    // A name being taken is normal once you own the package, so the check that
+    // matters is whether *this* version is already out and whether the package
+    // is ours. `maintainers` is public, so ownership is verifiable without a token.
+    const packument = await json(`https://registry.npmjs.org/${pkg.name}`);
+    const versions = Object.keys(packument?.versions ?? {});
+    const maintainers = (packument?.maintainers ?? []).map((m) => m?.name).filter(Boolean);
+    const latest = packument?.['dist-tags']?.latest;
+    if (versions.includes(pkg.version)) {
+      fail(`npm 上 ${pkg.name}@${pkg.version} 已经发布了（latest=${latest}）—— 要发新版本请先改 package.json 的 version`);
+    } else {
+      ok(`npm 名字已存在：${pkg.name}（maintainers: ${maintainers.join(', ') || '未公开'}，latest=${latest}）；待发版本 ${pkg.version} 尚未发布`);
+      if (maintainers.length && pkg.author?.name && !maintainers.includes(pkg.author.name)) {
+        fail(`该包的 maintainers（${maintainers.join(', ')}）不含 package.json 的 author.name（${pkg.author.name}）—— 确认这是你要发的包`);
+      }
+    }
+  } else {
+    info(`npm 查询返回 HTTP ${npmStatus}`);
+  }
 
   const repoStatus = await status(`https://api.github.com/repos/${OWNER}/${REPO}`);
   if (repoStatus === 404) ok(`GitHub 仓库还没建：${OWNER}/${REPO}`);
@@ -143,10 +171,10 @@ if (process.env.GITHUB_TOKEN || process.env.GH_TOKEN) {
   else external('GitHub 凭据未存：首次 git push 会弹凭据管理器窗口，或提供 GITHUB_TOKEN');
 }
 
-console.log('\n六、发布顺序（有硬约束）');
-console.log('  1. 建 GitHub 仓库并推送  —— 必须先做：README 顶部的图用 raw 绝对地址，仓库没公开时 npm 页面上的图是坏的');
-console.log('  2. npm publish            —— staged publishing，等 6~12 分钟 promote 窗口，别在窗口期内改版本号重发');
-console.log('  3. 市场 PR                —— 仓库需创建满 1 天（CI 自动检查仓库年龄）');
+console.log('\n六、发布顺序');
+console.log('  1. 建 GitHub 仓库并推送  —— README 顶部的编排图与 screenshots.json 都指向该仓库的 raw 地址；仓库公开后图才显示');
+console.log('  2. npm publish            —— staged publishing：promote 窗口实测 2~12 分钟，窗口期内 latest 未更新或同版本 409 都非失败');
+console.log('  3. 市场 PR                —— 仓库需创建满 1 天（CI 自动检查仓库年龄）；条目内容在 publish/market-entry.yml');
 console.log('  坐标与命令：PUBLISH.md');
 
 console.log('');
