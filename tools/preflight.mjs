@@ -159,6 +159,9 @@ else external(`npm token 缺失：放到 ${secrets} 一行 NPM_AUTOMATION_TOKEN=
 
 if (process.env.GITHUB_TOKEN || process.env.GH_TOKEN) {
   ok('GitHub token 可用（环境变量）');
+} else if (existsSync(secrets) && /^\s*(GITHUB_TOKEN|GH_TOKEN|GITHUB_PAT)\s*=/m.test(readFileSync(secrets, 'utf8'))) {
+  // 与 npm token 同源：按约定存在 ~/.secrets/keys.env 里也要认，否则判决会误报「凭据未存」。
+  ok(`GitHub token 可用（${secrets}）`);
 } else {
   // 非交互探测：禁掉提示与 GCM 弹窗，否则这条命令会挂住等人工输入。
   const probe = run('git', ['-c', 'credential.interactive=false', 'credential', 'fill'], {
