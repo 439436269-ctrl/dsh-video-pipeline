@@ -313,3 +313,59 @@ npm notice total files: 95
 回读校验用 `dsh-plugin-publish-npm` 自带的 `scripts/verify_npm_artifact.py`（比对 `dist.shasum` / `dist.integrity`，并把 registry 上的 tarball 与本地 tgz 逐字节对比）。
 
 **待办**：发布用的 npm token 已出现在对话记录中，作者需在确认发布无误后到 npm 设置里 **revoke**。仓库侧还需建 GitHub 仓库（README 顶部的编排图用 raw 绝对地址，仓库公开后该图才会显示），再满 1 天后提市场 PR。
+
+### 8b. promote 与回读校验
+
+后台任务每 60s 轮询两个独立端点，**约 2 分钟**后 promote 完成（比 skill 里记的 6~12 分钟快）：
+
+```
+第 1 次 09:12:26  version=            dist-tags.latest=0.0.0-stage   ← 新包自动占位版，尚未 promote
+第 2 次 09:13:26  version=            dist-tags.latest=0.0.0-stage
+第 3 次 09:14:27  version=0.1.0       dist-tags.latest=0.1.0        ← PROMOTED
+```
+
+回读校验用 `dsh-plugin-publish-npm/scripts/verify_npm_artifact.py`：
+
+```
+dist-tags.latest = 0.1.0
+versions = ['0.0.0-stage', '0.1.0']
+published at = 2026-10-12T01:13:28.595Z
+fileCount = 95  unpackedSize = 1050117
+shasum = 7c40c1647b549b737c65497bb6b51c94d85ee1ff
+downloaded sha1 = 7c40c1647b549b737c65497bb6b51c94d85ee1ff
+OK  下载产物 sha1 == dist.shasum
+OK  integrity(sha512) 校验通过
+OK  本地 tgz 与 registry 产物逐字节一致
+逐文件比对：一致 95 / 不同 0 / 仅包内 0
+全部检查通过 ✅
+exit 0
+```
+
+（脚本在 Windows 默认 GBK 控制台下会在最后打印 ✅ 时抛 `UnicodeEncodeError`，校验本身已全部通过；加 `PYTHONIOENCODING=utf-8` 即得 exit 0。）
+
+### 8c. 从 registry 安装（真实用户路径）
+
+```
+$ dsh --profile video-npm --from-default-profile headless
+$ dsh plugin --profile video-npm add dsh-video-pipeline@0.1.0     # 显式版本，不受 24h 观察期拦
++ dsh-video-pipeline 0.1.0
+Done in 2.9s
+
+$ dsh --profile video-npm --dump-config | grep dsh-video-pipeline
+- id: dsh-video-pipeline
+  name: dsh-video-pipeline
+stderr: 空
+
+安装形态：真实目录副本（非软链）  包内 skill 数：19  version：0.1.0
+```
+
+**功能验收（干净 agents 根，即真实用户环境）**：
+
+```
+$env:DSH_AGENTS_HOME = <空目录>
+$ dsh --profile video-npm "把技能目录里所有 skill 的 name 逐行列出来，最后输出 TOTAL=N"
+ark-agent-plan-image … video-pipeline … xiaohongshu-skills
+TOTAL=19
+```
+
+从 registry 装出来的包，技能目录正好是那 19 个 → **发布链路端到端可用**：本地开发 → tarball → registry → 安装副本 → 真实 agent 目录。
