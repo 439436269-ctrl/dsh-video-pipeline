@@ -1,69 +1,84 @@
-﻿# 鍙戝竷娓呭崟锛堟湰浠撳簱涓撶敤鍧愭爣涓庡懡浠わ級
+# 发布清单（本仓库专用坐标与命令）
 
-> **褰撳墠杩涘害锛?026-10-11锛?*
+> **当前进度（2026-10-11）**
 >
-> | 姝ラ | 鐘舵€?|
+> | 步骤 | 状态 |
 > |---|---|
-> | 鈶?GitHub 寤轰粨 + 鎺ㄩ€?| 鈴?**寰呭姙** 鈥斺€?缂?GitHub 鍑嵁锛坄credential.helper=manager` 宸查厤缃絾鏈瓨 github.com 鍑嵁锛涢潪浜や簰鎺㈡祴鎶?`Cannot prompt because user interactivity has been disabled`锛夈€傚缓浠?API 涔熼渶瑕?token锛屾垨鐢变綔鑰呭湪缃戦〉绔缓濂戒粨搴撳悗鎴戝彧鍋?push銆?|
-> | 鈶?npm 鍙戝竷 | 鉁?**宸插畬鎴?* 鈥斺€?`dsh-video-pipeline@0.1.0`锛宻hasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`锛堜笌鏈湴鎵撳寘閫愬瓧鑺備竴鑷达級銆傝瑙?`VERIFY.md` 绗?8 鑺傘€?|
-> | 鈶?甯傚満 PR | 鈴?寰呪憽涔嬪墠鍏堝缓浠擄紝涓斾粨搴撳垱寤烘弧 1 澶┿€傝处鍙蜂笅**宸叉湁 `awesome-dsh-plugin` 鐨?fork**锛屽彲璺宠繃 fork銆?|
+> | ① GitHub 建仓 + 推送 | ⏳ **待办** —— 缺 GitHub 凭据（`credential.helper=manager` 已配置但未存 github.com 凭据；非交互探测报 `Cannot prompt because user interactivity has been disabled`）。建仓 API 也需要 token；或由作者在网页端建好空仓后我只做 push。 |
+> | ② npm 发布 | ✅ **已完成** —— `dsh-video-pipeline@0.1.0`，shasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`（与本地打包逐字节一致）。详见 `VERIFY.md` 第 8 节。 |
+> | ③ 市场 PR | ⏸ 待 ① 建仓，且仓库创建满 1 天。账号下**已有 `awesome-dsh-plugin` 的 fork**，可跳过 fork 那步。 |
 >
-> 鈿狅笍 鍙戝竷鎵€鐢?npm token 宸插嚭鐜板湪瀵硅瘽璁板綍閲岋紝纭鏃犺鍚庤鍒?npm 璁剧疆 **revoke**銆?
-> 鍘熷瓙鐨勬搷浣滅粏鑺傚湪 skill `dsh-plugin-publish-repo`銆乣dsh-plugin-publish-npm` 閲岋紱鏈枃浠跺彧璁板綍**杩欎釜浠撳簱鑷繁鐨?*鍙栧€硷紝閬垮厤姣忔閮藉幓鍥炴函銆?
-## 鍧愭爣
+> ⚠️ 发布所用 npm token 已出现在对话记录里，确认无误后请到 npm 设置 **revoke**。
 
-| 椤?| 鍊?|
+> 原子的操作细节在 skill `dsh-plugin-publish-repo`、`dsh-plugin-publish-npm` 里；本文件只记录**这个仓库自己的**取值，避免每次都去回溯。
+
+## 坐标
+
+| 项 | 值 |
 |---|---|
-| npm 鍖呭悕 | `dsh-video-pipeline`锛堝凡鏌ラ噸锛歳egistry 404锛屽彲鐢級 |
-| 鐗堟湰 | `0.1.0` |
-| GitHub 浠撳簱 | `439436269-ctrl/dsh-video-pipeline`锛堢洰鏍囷紝灏氭湭鍒涘缓锛?|
-| 甯傚満鏉＄洰鏂囦欢 | `data/plugins/439436269-ctrl__dsh-video-pipeline.yml`锛堝唴瀹硅 `publish/market-entry.yml`锛?|
-| 甯傚満鍒嗙被 | `skill` |
-| 缃插悕 | `vfvrpq` / <https://github.com/439436269-ctrl> |
+| npm 包名 | `dsh-video-pipeline`（已查重：registry 404，可用） |
+| 版本 | `0.1.0` |
+| GitHub 仓库 | `439436269-ctrl/dsh-video-pipeline`（目标，尚未创建） |
+| 市场条目文件 | `data/plugins/439436269-ctrl__dsh-video-pipeline.yml`（内容见 `publish/market-entry.yml`） |
+| 市场分类 | `skill` |
+| 署名 | `vfvrpq` / <https://github.com/439436269-ctrl> |
 
-## 褰撳墠鍓嶇疆鏉′欢锛?026-10-11 瀹炴祴锛?
-| 闇€瑕?| 鐘舵€?|
+## 当前前置条件（2026-10-11 实测）
+
+| 需要 | 状态 |
 |---|---|
-| GitHub 鍑嵁 | 鉂?`credential.helper=manager` 宸查厤缃紝浣?*鏈瓨** github.com 鍑嵁锛涢潪浜や簰鎺㈡祴鎶?`Cannot prompt because user interactivity has been disabled`銆傞娆?`git push` 浼氬脊鍑嵁绠＄悊鍣ㄧ獥鍙ｏ紝鎴栧厛鎻愪緵 token銆?|
-| npm Automation token | 鉂?`~/.secrets/keys.env` 涓嶅瓨鍦紝`NPM_AUTOMATION_TOKEN` 鐜鍙橀噺鏈缃€傛寜 `dsh-plugin-publish-npm` 鐨勭害瀹氾紝token 鐨勫敮涓€鐪熸簮鏄?`~/.secrets/keys.env`銆?|
-| 浠撳簱骞撮緞 | 寤轰粨鍚庨渶婊?**1 澶?*鎵嶈兘鎻愬競鍦?PR锛堜粨搴撳勾榫勯棬妲涚敱 CI 鑷姩妫€鏌ワ級 |
+| GitHub 凭据 | ❌ `credential.helper=manager` 已配置，但**未存** github.com 凭据；非交互探测报 `Cannot prompt because user interactivity has been disabled`。首次 `git push` 会弹凭据管理器窗口，或先提供 token。 |
+| npm Automation token | ❌ `~/.secrets/keys.env` 不存在，`NPM_AUTOMATION_TOKEN` 环境变量未设置。按 `dsh-plugin-publish-npm` 的约定，token 的唯一真源是 `~/.secrets/keys.env`。 |
+| 仓库年龄 | 建仓后需满 **1 天**才能提市场 PR（仓库年龄门槛由 CI 自动检查） |
 
-瀵嗛挜璇?*涓嶈**璐磋繘瀵硅瘽鎴栧啓杩涗粨搴擄紱鏀?`~/.secrets/keys.env` 涓€琛屼竴涓嵆鍙紝鎴戜細鍐欎复鏃?npmrc銆佺敤瀹屽嵆鍒犮€?
-## 涓夋潯鍙戝竷娓犻亾涓庡懡浠?
-> **鍏堣窇涓€娆¤嚜妫€**锛歚node tools/preflight.mjs` 鈥斺€?鍙銆佷笉鎺ㄩ€併€佷笉鍙戝竷銆傚畠浼氭牳瀵瑰寘娓呭崟锛坄dsh.bundle`銆佺讲鍚嶃€乣repository`銆乣files` 鐧藉悕鍗曪級銆佽繙绔悕瀛楀崰鐢ㄣ€乬it 鐘舵€併€佷笁閬撴湰鍦伴棬涓庡嚟鎹紝骞剁粰鍑恒€屾湰鍦版槸鍚﹀凡鍙彂 + 杩樺樊鍝簺澶栭儴鏉′欢銆嶇殑鏄庣‘鍒ゅ喅銆傛湰鍦伴棶棰樹細璁╁畠闈為浂閫€鍑猴紝缂哄嚟鎹彧鍗曠嫭鍒楀嚭锛堥偅鏄閮ㄦ潯浠讹紝涓嶆槸鍖呯殑缂洪櫡锛夈€?
-> **椤哄簭鏈夌‖绾︽潫锛氬厛寤轰粨鎺ㄩ€侊紝鍐嶅彂 npm銆?* npm 椤甸潰娓叉煋鐨勬槸 tarball 閲岀殑 README锛岃€?README 椤堕儴閭ｅ紶缂栨帓鍥剧敤鐨勬槸
-> `https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/...` 缁濆鍦板潃
-> 锛堢浉瀵硅矾寰勫湪 npm 椤甸潰涓婃嬁涓嶅埌锛夈€備粨搴撴病鍏堝叕寮€锛宯pm 椤甸潰鐨勫浘灏辨槸鍧忕殑銆?> `screenshots.json` 涔熸寚鍚戜粨搴撳唴鐨勫浘锛屽悓鐞嗐€?
-### 1. GitHub 寤轰粨 + 鎺ㄩ€?
+密钥请**不要**贴进对话或写进仓库；放 `~/.secrets/keys.env` 一行一个即可，我会写临时 npmrc、用完即删。
+
+## 三条发布渠道与命令
+
+> **先跑一次自检**：`node tools/preflight.mjs` —— 只读、不推送、不发布。它会核对包清单（`dsh.bundle`、署名、`repository`、`files` 白名单）、远端名字占用、git 状态、三道本地门与凭据，并给出「本地是否已可发 + 还差哪些外部条件」的明确判决。本地问题会让它非零退出，缺凭据只单独列出（那是外部条件，不是包的缺陷）。
+
+> **顺序说明**：原计划「先建仓推送，再发 npm」——因为 npm 页面渲染的 README 顶部那张编排图用的是
+> `https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/...` 绝对地址
+> （相对路径在 npm 页面上拿不到），仓库没公开时图是坏的。实际执行时 **npm 先发了**（作者只给了 npm token）。
+> 这不是不可逆的：图片是渲染时按 URL 取的，仓库建好后该图会自己恢复显示，**不需要为了图片重发版本**。
+> `screenshots.json` 同理。
+
+### 1. GitHub 建仓 + 推送
+
 ```sh
-# 寤轰粨锛圓PI锛宼opic 鍙兘灏忓啓 ASCII锛宒sh-plugin 蹇呭甫锛?#   POST https://api.github.com/user/repos
+# 建仓（API，topic 只能小写 ASCII，dsh-plugin 必带）
+#   POST https://api.github.com/user/repos
 #   {"name":"dsh-video-pipeline","private":false,"has_issues":true,"has_wiki":false,"auto_init":false,
-#    "description":"DSH 鎻掍欢锛氭妸涓€鏉＄煭瑙嗛鐢熶骇娴佹按绾匡紙19 涓?skill锛夊唴缃繘 agent 鎶€鑳界洰褰?,
+#    "description":"DSH 插件：把一条短视频生产流水线（19 个 skill）内置进 agent 技能目录",
 #    "homepage":"https://www.npmjs.com/package/dsh-video-pipeline"}
 #   PUT /repos/439436269-ctrl/dsh-video-pipeline/topics
 #   {"names":["dsh","dsh-plugin","deepseek-harness","cordis","skill","video","ffmpeg"]}
 cd <repo>
 git remote add origin https://github.com/439436269-ctrl/dsh-video-pipeline.git
 git push -u origin main
-git ls-remote origin refs/heads/main     # 鐢ㄨ繙绔?SHA 鏍稿锛屼笉瑕佸彧鐪嬪懡浠ゆ病鎶ラ敊
+git ls-remote origin refs/heads/main     # 用远端 SHA 核对，不要只看命令没报错
 ```
 
-### 2. npm 鍙戝竷
+### 2. npm 发布
 
 ```sh
-. $HOME\.secrets\load.ps1                                   # 杞藉叆 NPM_AUTOMATION_TOKEN
+. $HOME\.secrets\load.ps1                                   # 载入 NPM_AUTOMATION_TOKEN
 $rc = Join-Path $env:TEMP "npmrc-video-pipeline"
 "//registry.npmjs.org/:_authToken=$env:NPM_AUTOMATION_TOKEN" | Set-Content $rc -Encoding ascii
 $env:NPM_CONFIG_USERCONFIG = $rc
 npm run check; npm test; npm run privacy-gate; npm run verify:artifact
 npm publish --no-git-checks
-Remove-Item $rc                                             # 绔嬪埢鍒?```
+Remove-Item $rc                                             # 立刻删
+```
 
-鈿狅笍 **staged publishing**锛歚npm publish` 鎵撳嵃鎴愬姛鍙唬琛ㄨ繘浜嗘殏瀛樺尯锛宺egistry 鑷姩 promote 闇€ 6锝?2 鍒嗛挓銆傜獥鍙ｆ湡鍐?`dist-tags.latest` 杩樻槸鏃у€笺€乣GET /<name>/<version>` 404銆佸悓鐗堟湰閲嶅彂鎶?`409 Cannot publish over previously staged version` 鈥斺€?**閮戒笉鏄け璐?*锛岀瓑 10锝?5 鍒嗛挓鍐嶇敤涓や釜绔偣纭銆俷pm 鍖呬笉鍙挙鍥炪€?
-### 3. 甯傚満 PR
+⚠️ **staged publishing**：`npm publish` 打印成功只代表进了暂存区，registry 自动 promote 需 6～12 分钟。窗口期内 `dist-tags.latest` 还是旧值、`GET /<name>/<version>` 404、同版本重发报 `409 Cannot publish over previously staged version` —— **都不是失败**，等 10～15 分钟再用两个端点确认。npm 包不可撤回。
+
+### 3. 市场 PR
 
 ```sh
-# 浠撳簱鍒涘缓婊?1 澶╁悗锛屾妸 publish/market-entry.yml 鐨勫唴瀹瑰啓鍒?#   data/plugins/439436269-ctrl__dsh-video-pipeline.yml
-# 鍐嶇粰 awesome-dsh-plugin/awesome-dsh-plugin 鎻?PR锛堜竴涓?PR 鏈€澶?3 鏉★級銆?```
+# 仓库创建满 1 天后，把 publish/market-entry.yml 的内容写到
+#   data/plugins/439436269-ctrl__dsh-video-pipeline.yml
+# 再给 awesome-dsh-plugin/awesome-dsh-plugin 提 PR（一个 PR 最多 3 条）。
+```
 
-**鍔犻€熺偣**锛氳处鍙?`439436269-ctrl` 涓?*宸茬粡鏈?`awesome-dsh-plugin` 鐨?fork**锛?026-10-11 瀹炴祴锛夛紝鎵€浠ョ 3 姝ュ彲浠ヨ烦杩?fork锛岀洿鎺ュ湪宸叉湁 fork 涓婂紑鍒嗘敮鍐欐枃浠躲€佸啀寮€ PR銆備綔鑰呭彟鏈?5 涓凡鍙戝竷鐨?DSH 鎻掍欢锛坄dsh-zspace` / `dsh-piano` / `dsh-scroll-piano` / `dsh-session-path` / `dsh-pinned-sessions`锛夛紝鍙戝竷娴佺▼宸茶窇閫氳繃銆?
+**加速点**：账号 `439436269-ctrl` 下**已经有 `awesome-dsh-plugin` 的 fork**（2026-10-11 实测），所以第 3 步可以跳过 fork，直接在已有 fork 上开分支写文件、再开 PR。作者另有 5 个已发布的 DSH 插件（`dsh-zspace` / `dsh-piano` / `dsh-scroll-piano` / `dsh-session-path` / `dsh-pinned-sessions`），发布流程已跑通过。
