@@ -449,3 +449,35 @@ TOTAL=19
 ```
 
 从 registry 装出来的包，技能目录正好是那 19 个 → **发布链路端到端可用**：本地开发 → tarball → registry → 安装副本 → 真实 agent 目录。
+
+### 8d. 0.1.1（纯文档版）发布记录
+
+0.1.0 的 tarball 里是旧 README，而 npm 页面渲染的正是那份，所以发了一个只改文档的版本（`lib/` 与 `skills/` 内容与 0.1.0 一致）。
+
+```
+$ node tools/preflight.mjs
+✅ 包清单 5 项   ✅ 待发版本 0.1.1 尚未发布   ✅ 工作区干净   ✅ 四道本地门
+✅ npm Automation token 可用   ✅ GitHub token 可用（~/.secrets/keys.env）
+exit 0
+
+$ npm pack --pack-destination <tmp>        # 提交前后各打一次，sha1 相同才继续
+sha1 4281b43005e54e6f1492de735a28149fc7ebce44    tar 条目 95
+
+$ # token 从 ~/.secrets/keys.env 载入 → 临时 npmrc（用完即删）
+$ npm whoami → vfvrpq
+$ npm publish
++ dsh-video-pipeline@0.1.1
+npm notice shasum: 4281b43005e54e6f1492de735a28149fc7ebce44     ← 与本地打包一致
+
+# promote 约 1.5 分钟（3 次轮询：latest 仍 0.1.0 → 0.1.1）
+$ python verify_npm_artifact.py dsh-video-pipeline 0.1.1 --tgz <本地 tgz> --src .
+dist-tags.latest = 0.1.1
+versions = ['0.0.0-stage', '0.1.0', '0.1.1']
+OK  下载产物 sha1 == dist.shasum
+OK  integrity(sha512) 校验通过
+OK  本地 tgz 与 registry 产物逐字节一致
+逐文件比对：一致 95 / 不同 0 / 仅包内 0
+exit 0
+```
+
+**已知边界**：npm 页面上的编排图走 `raw.githubusercontent.com` 绝对地址。npm 服务端渲染时能取到（美国侧），但本机实测该域名**超时**（国内网络），所以作者本人浏览器可能看不到那张图——推文里因此建议直接上传 `docs/skill-flow.png` 而不是贴直链。
