@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1356 656" width="1356" height="656" font-family="'Microsoft YaHei','PingFang SC',-apple-system,sans-serif">
+  <defs>
+    <marker id="arrowData" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#1a7f37" stroke-width="1.6"/></marker>
+    <marker id="arrowCall" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#8b949e" stroke-width="1.6"/></marker>
+    <marker id="arrowGate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#d97706" stroke-width="1.6"/></marker>
+    <marker id="arrowLoop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10" fill="none" stroke="#b91c1c" stroke-width="1.6"/></marker>
+  </defs>
+  <rect width="1356" height="656" fill="#fafbfc"/>
+  <text x="678" y="34" text-anchor="middle" font-size="17" font-weight="600" fill="#1a1a1a">dsh-video-pipeline · 19 个 skill 的关系与数据流</text>
+  <text x="678" y="56" text-anchor="middle" font-size="11.5" fill="#57606a">按流水线阶段排列；实线＝产物数据流，虚线＝调度/调用，橙色＝质量门，红色虚线＝数据复盘闭环</text>
+  <rect x="36" y="72" width="13" height="13" rx="3" fill="#e8f0fe" stroke="#2563eb"/>
+  <text x="54" y="83" font-size="11" fill="#57606a">入口（本包自撰）</text>
+  <rect x="154" y="72" width="13" height="13" rx="3" fill="#f3e8ff" stroke="#7c3aed"/>
+  <text x="172" y="83" font-size="11" fill="#57606a">编排</text>
+  <rect x="203" y="72" width="13" height="13" rx="3" fill="#e6f4ea" stroke="#1a7f37"/>
+  <text x="221" y="83" font-size="11" fill="#57606a">原子能力</text>
+  <rect x="275" y="72" width="13" height="13" rx="3" fill="#fff4ce" stroke="#d97706"/>
+  <text x="293" y="83" font-size="11" fill="#57606a">核验 / 门</text>
+  <rect x="370" y="72" width="13" height="13" rx="3" fill="#e8f0fe" stroke="#2563eb"/>
+  <text x="388" y="83" font-size="11" fill="#57606a">交付</text>
+  <rect x="419" y="72" width="13" height="13" rx="3" fill="#fde8e8" stroke="#b91c1c"/>
+  <text x="437" y="83" font-size="11" fill="#57606a">回写与复盘</text>
+  <rect x="36" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
+  <text x="120" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">入口</text>
+  <rect x="36" y="146" width="168" height="54" rx="6" fill="#e8f0fe" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="46" y="171.0" font-size="11.5" font-weight="600" fill="#1d4ed8" font-family="ui-monospace,Consolas,monospace">video-pipeline</text>
+  <text x="46" y="191" font-size="9.5" fill="#57606a">总入口：选环节、讲占位符</text>
+  <rect x="222" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
+  <text x="306" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">编排（调度 + 确认门）</text>
+  <rect x="222" y="146" width="168" height="54" rx="6" fill="#f3e8ff" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="232" y="171.0" font-size="11.5" font-weight="600" fill="#5b21b6" font-family="ui-monospace,Consolas,monospace">tangshi-pipeline</text>
+  <text x="232" y="191" font-size="9.5" fill="#57606a">门①报价 → 调度 → 门②发布确认</text>
+  <rect x="408" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
+  <text x="492" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">配音</text>
+  <rect x="408" y="146" width="168" height="54" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.2"/>
+  <text x="418" y="171.0" font-size="11.5" font-weight="600" fill="#14532d" font-family="ui-monospace,Consolas,monospace">chinese-tts</text>
+  <text x="418" y="191" font-size="9.5" fill="#57606a">多音字校正 → 出 wav</text>
+  <rect x="594" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
+  <text x="678" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">画面（关键帧 / 镜头）</text>
+  <rect x="594" y="146" width="168" height="54" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.2"/>
+  <text x="604" y="171.0" font-size="10.9" font-weight="600" fill="#14532d" font-family="ui-monospace,Consolas,monospace">ark-agent-plan-image</text>
+  <text x="604" y="191" font-size="9.5" fill="#57606a">关键帧 · Plan 配额</text>
+  <rect x="594" y="210" width="168" height="54" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.2"/>
+  <text x="604" y="235.0" font-size="11.5" font-weight="600" fill="#14532d" font-family="ui-monospace,Consolas,monospace">ark-seedream-image</text>
+  <text x="604" y="255" font-size="9.5" fill="#57606a">关键帧 · 按量通道</text>
+  <rect x="594" y="274" width="168" height="54" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.2"/>
+  <text x="604" y="299.0" font-size="11.5" font-weight="600" fill="#14532d" font-family="ui-monospace,Consolas,monospace">dreamina-canvas-cli</text>
+  <text x="604" y="319" font-size="9.5" fill="#57606a">关键帧 · 备用线</text>
+  <rect x="594" y="338" width="168" height="54" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.2"/>
+  <text x="604" y="363.0" font-size="11.5" font-weight="600" fill="#14532d" font-family="ui-monospace,Consolas,monospace">image-to-video</text>
+  <text x="604" y="383" font-size="9.5" fill="#57606a">关键帧 → 运镜镜头</text>
+  <rect x="594" y="402" width="168" height="54" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.2"/>
+  <text x="604" y="427.0" font-size="11.5" font-weight="600" fill="#14532d" font-family="ui-monospace,Consolas,monospace">ark-seedance-video</text>
+  <text x="604" y="447" font-size="9.5" fill="#57606a">t2v / i2v 直出镜头</text>
+  <rect x="780" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
+  <text x="864" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">合成</text>
+  <rect x="780" y="146" width="168" height="54" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.2"/>
+  <text x="790" y="171.0" font-size="11.5" font-weight="600" fill="#14532d" font-family="ui-monospace,Consolas,monospace">video-compose</text>
+  <text x="790" y="191" font-size="9.5" fill="#57606a">镜头 + wav + SRT → 成片</text>
+  <rect x="966" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
+  <text x="1050" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">核验</text>
+  <rect x="966" y="146" width="168" height="54" rx="6" fill="#fff4ce" stroke="#d97706" stroke-width="1.2"/>
+  <text x="976" y="171.0" font-size="11.5" font-weight="600" fill="#92400e" font-family="ui-monospace,Consolas,monospace">media-verify</text>
+  <text x="976" y="191" font-size="9.5" fill="#57606a">音频对位 / 版本比对 / 白屏</text>
+  <rect x="966" y="210" width="168" height="54" rx="6" fill="#fff4ce" stroke="#d97706" stroke-width="1.2"/>
+  <text x="976" y="235.0" font-size="11.5" font-weight="600" fill="#92400e" font-family="ui-monospace,Consolas,monospace">video-cover</text>
+  <text x="976" y="255" font-size="9.5" fill="#57606a">关键帧 → 双平台封面</text>
+  <rect x="1152" y="108" width="168" height="24" rx="5" fill="#eef1f4" stroke="#d0d7de"/>
+  <text x="1236" y="124" text-anchor="middle" font-size="11" font-weight="600" fill="#424a53">交付（四平台）</text>
+  <rect x="1152" y="146" width="168" height="54" rx="6" fill="#e8f0fe" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="1162" y="171.0" font-size="10.4" font-weight="600" fill="#1d4ed8" font-family="ui-monospace,Consolas,monospace">quad-platform-publish</text>
+  <text x="1162" y="191" font-size="9.5" fill="#57606a">四平台并行 + 风控速查</text>
+  <rect x="1152" y="210" width="168" height="54" rx="6" fill="#e8f0fe" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="1162" y="231.0" font-size="10.5" font-weight="600" fill="#1d4ed8" font-family="ui-monospace,Consolas,monospace">multi-platform</text>
+  <text x="1162" y="244.0" font-size="10.5" font-weight="600" fill="#1d4ed8" font-family="ui-monospace,Consolas,monospace">publish-orchestrator</text>
+  <text x="1162" y="255" font-size="9.5" fill="#57606a">按 JSON 顺序批量发</text>
+  <rect x="1152" y="274" width="168" height="54" rx="6" fill="#e8f0fe" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="1162" y="299.0" font-size="11.5" font-weight="600" fill="#1d4ed8" font-family="ui-monospace,Consolas,monospace">bilibili-upload</text>
+  <text x="1162" y="319" font-size="9.5" fill="#57606a">biliup 投稿 / 合集</text>
+  <rect x="1152" y="338" width="168" height="54" rx="6" fill="#e8f0fe" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="1162" y="363.0" font-size="11.5" font-weight="600" fill="#1d4ed8" font-family="ui-monospace,Consolas,monospace">tencent-upload</text>
+  <text x="1162" y="383" font-size="9.5" fill="#57606a">视频号 / 合集</text>
+  <rect x="1152" y="402" width="168" height="54" rx="6" fill="#e8f0fe" stroke="#2563eb" stroke-width="1.2"/>
+  <text x="1162" y="427.0" font-size="11.5" font-weight="600" fill="#1d4ed8" font-family="ui-monospace,Consolas,monospace">douyin-publish</text>
+  <text x="1162" y="447" font-size="9.5" fill="#57606a">抖音 / 合集</text>
+  <rect x="1152" y="466" width="168" height="54" rx="6" fill="#f6f8fa" stroke="#8b949e" stroke-width="1.2"/>
+  <text x="1162" y="491.0" font-size="11.5" font-weight="600" fill="#57606a" font-family="ui-monospace,Consolas,monospace">xiaohongshu-skills</text>
+  <text x="1162" y="511" font-size="9.5" fill="#57606a">小红书（第三方 MIT）</text>
+  <rect x="36" y="560" width="1284" height="72" rx="8" fill="#fff7f7" stroke="#f0c4c4" stroke-dasharray="5 4"/>
+  <text x="48" y="578" font-size="11" font-weight="600" fill="#7f1d1d">回写与复盘（闭环）</text>
+  <rect x="966" y="586" width="168" height="40" rx="6" fill="#fde8e8" stroke="#b91c1c" stroke-width="1.2"/>
+  <text x="976" y="603" font-size="11.5" font-weight="600" fill="#7f1d1d" font-family="ui-monospace,Consolas,monospace">tangshi-data-review</text>
+  <text x="976" y="619" font-size="9.5" fill="#57606a">回收三平台数据 → 复盘</text>
+  <rect x="1152" y="586" width="168" height="40" rx="6" fill="#fde8e8" stroke="#b91c1c" stroke-width="1.2"/>
+  <text x="1162" y="603" font-size="11.5" font-weight="600" fill="#7f1d1d" font-family="ui-monospace,Consolas,monospace">feishu-bitable</text>
+  <text x="1162" y="619" font-size="9.5" fill="#57606a">进度 / 逐集实录回写</text>
+  <path d="M204,173 H213 V173 H222" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M390,173 H399 V173 H408" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M390,173 H500 V173 H594" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M576,173 H678 V173 H780" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M594,173 H587 V365 H594" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M594,237 H587 V365 H594" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M678,328 V338" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M594,173 H583 V429 H594" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M762,365 H771 V173 H780" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M762,429 H771 V173 H780" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M948,173 H957 V173 H966" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M1134,173 H1143 V173 H1152" fill="none" stroke="#d97706" stroke-width="1.8" marker-end="url(#arrowGate)"/>
+  <path d="M1320,173 H1327 V301 H1320" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M1320,173 H1333 V365 H1320" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M1320,173 H1339 V429 H1320" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M1320,173 H1345 V493 H1320" fill="none" stroke="#8b949e" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#arrowCall)"/>
+  <path d="M1320,365 H1327 V606 H1320" fill="none" stroke="#1a7f37" stroke-width="1.6" marker-end="url(#arrowData)"/>
+  <path d="M1050,626 V643 H306 V200" fill="none" stroke="#b91c1c" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#arrowLoop)"/>
+  <text x="267" y="638" text-anchor="middle" font-size="9.5" fill="#b91c1c" font-weight="600" paint-order="stroke" stroke="#fafbfc" stroke-width="3.5" stroke-linejoin="round">数据复盘修正选片权重与发布节奏</text>
+</svg>

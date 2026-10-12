@@ -2,9 +2,28 @@
 
 把一条**跑通过的真实短视频生产流水线**作为内置 skill 装进 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)：共 19 个技能（1 个总入口 + 1 个编排 + 17 个原子），随插件一起出现在 agent 的技能目录里。
 
-![流水线编排图](https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/skills/tangshi-pipeline/references/orchestration-flow.png)
+![19 个 skill 的关系与数据流](https://raw.githubusercontent.com/439436269-ctrl/dsh-video-pipeline/main/docs/skill-flow.png)
 
-> 图：`tangshi-pipeline` 的编排流程图——左列是编排层（选题 → 门①报价 → 配音/素材/成片调度 → 门②发布确认 → 并行发布 → 回写），右列是被调用的原子 skill。素材生产分「图片运镜」与「Seedance t2v」两条路线，在 `video-compose` 汇合、可按镜头混用。
+> 图：19 个 skill 按流水线阶段排列，以及它们之间的交接。实线＝产物数据流，虚线＝编排 skill 对原子 skill 的调度，橙色＝质量门，红色虚线＝数据复盘闭环。（源码 `docs/skill-flow.svg`，由 `node tools/make-flow-diagram.mjs` 生成——skill 集合变了改数据重跑即可。）
+
+列间空隙只有十几像素，图上不写字，所以交接关系列在这里：
+
+| 交接 | 传的是什么 |
+|---|---|
+| `chinese-tts` → `video-compose` | 配音 wav（先过读音校正，字幕仍写原字） |
+| `ark-agent-plan-image` / `ark-seedream-image` / `dreamina-canvas-cli` → `image-to-video` | 关键帧 → 运镜镜头（三条生图线三选一，也可按镜头混用） |
+| 三个生图 skill → `ark-seedance-video` | 关键帧当 i2v 首帧，用来锁人物形象 |
+| 三个生图 skill → `video-cover` | 关键帧 → 双平台封面（图中以卡片注释表示，避免长线穿图） |
+| `image-to-video` / `ark-seedance-video` → `video-compose` | 镜头 mp4（路线①图片运镜与路线②t2v 在这里汇合） |
+| `video-compose` → `media-verify` | 成片（先核验再交付） |
+| `media-verify` → `quad-platform-publish` | **核验通过才允许发布**（质量门） |
+| `quad-platform-publish` → `bilibili-upload` / `tencent-upload` / `douyin-publish` / `xiaohongshu-skills` | 一平台一个 agent 并行发布 |
+| `multi-platform-publish-orchestrator` | 与上一条并行的另一条路径：按 JSON 配置顺序批量发 |
+| 发布 → `feishu-bitable` | 链接与状态回写 |
+| `tangshi-data-review` → `tangshi-pipeline` | 三平台数据复盘修正选片权重与发布节奏（闭环） |
+| `video-pipeline` → 其余全部 | 总入口：说明这包是什么、每个环节该加载哪个 skill |
+
+被内置的 `tangshi-pipeline` 另自带一张更细的编排流程图（含两道确认门与并行发布的时序）：`skills/tangshi-pipeline/references/orchestration-flow.png`。
 
 装完不需要往 `~/.agents/skills` 或 `~/.dsh/skills` 复制任何文件——插件自己注册一个 skill provider，把包内的 `skills/` 目录提供给 `ctx.skills`。
 
@@ -136,14 +155,17 @@ dsh-video-pipeline/
 │   └── placeholders.js   # {{TOKEN}} 取值与替换
 ├── skills/               # 19 个 skill（由 tools/import-skills.mjs 生成）
 ├── authored/             # 本包自撰的 skill 源文件（导入时写入 skills/）
+├── docs/                 # skill-flow.svg + .png（由 tools/make-flow-diagram.mjs 生成；不进制品包，README 用 raw 地址取）
 ├── tools/
 │   ├── import-skills.mjs # 可复现导入器：--audit / --write / --verify
 │   ├── scrub-rules.mjs   # 剔除、脱敏、文档准确性改写、残留扫描的唯一规则来源
 │   ├── verify-artifact.mjs # 打包 → 解包 → 真实加载解出来的入口
-│   └── preflight.mjs     # 只读发布自检（远端占用 / git / 三道门 / 凭据）
+│   ├── preflight.mjs     # 只读发布自检（远端占用 / git / 三道门 / 凭据）
+│   ├── setup-repo.mjs    # 建仓 + 设 topics + 推送 + 核对远端 SHA
+│   └── make-flow-diagram.mjs # 生成 docs/skill-flow.svg + .png
 └── test/
     ├── provider.test.mjs # provider 行为 + 对真实 skills/ 的集成断言
-    └── rules.test.mjs    # 规则回归：10 个用例各对应一个真实踩过的坑
+    └── rules.test.mjs    # 规则回归：每个用例对应一个真实踩过的坑
 ```
 
 ## 开发
