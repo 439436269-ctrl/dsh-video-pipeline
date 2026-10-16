@@ -1,8 +1,3 @@
-# 提交到 awesome-dsh-plugin 时的条目内容。
-# 落点：awesome-dsh-plugin/awesome-dsh-plugin 的 data/plugins/439436269-ctrl__dsh-video-pipeline.yml
-# 规则：url 必须与仓库完全一致；category 取 skill；description.en 必填且以句号结尾；
-#       含「冒号+空格」的整行必须加引号（否则 YAML 会当成嵌套键）。
-
 url: https://github.com/439436269-ctrl/dsh-video-pipeline
 name: 439436269-ctrl/dsh-video-pipeline
 category: skill

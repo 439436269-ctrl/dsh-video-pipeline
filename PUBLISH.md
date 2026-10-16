@@ -1,13 +1,14 @@
 # 发布清单（本仓库专用坐标与命令）
 
-> **当前进度（2026-10-11）**
+> **当前进度（2026-10-16）**
 >
 > | 步骤 | 状态 |
 > |---|---|
-> | ① GitHub 建仓 + 推送 | ⏳ **待办** —— 缺 GitHub 凭据（`credential.helper=manager` 已配置但未存 github.com 凭据；非交互探测报 `Cannot prompt because user interactivity has been disabled`）。建仓 API 也需要 token；或由作者在网页端建好空仓后我只做 push。 |
-> | ② npm 发布 | ✅ **0.1.0 已完成** —— shasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`（与本地打包逐字节一致）。详见 `VERIFY.md` 第 8 节。 |
-> | ②b npm 发布 0.1.1（仅文档） | ⏸ **已备好，等作者点头** —— 目的是让 npm 页面显示新的 README（含 skill 关系图）。`package.json` 已升到 0.1.1、CHANGELOG 已写、四道门与打包验证已过；一条 `npm publish` 即可，之后同样是 2~12 分钟 promote 窗口。 |
-> | ③ 市场 PR | ⏸ 待 ① 建仓，且仓库创建满 1 天。账号下**已有 `awesome-dsh-plugin` 的 fork**，可跳过 fork 那步。 |
+> | ① GitHub 建仓 + 推送 | ✅ **已完成** —— `439436269-ctrl/dsh-video-pipeline`，CI 绿；另建宿主中立仓 `video-pipeline-skills`（Claude Code / Codex）。 |
+> | ② npm 发布 0.1.0 | ✅ **已完成** —— shasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`（与本地打包逐字节一致）。详见 `VERIFY.md` 第 8 节。 |
+> | ②b npm 发布 0.1.1（仅文档） | ✅ **已发布** —— 目的是让 npm 页面显示含 skill 关系图的新 README；`latest=0.1.1`，逐字节回读一致（sha1 `4281b430…`）。 |
+> | ③ 市场 PR（本项目） | ✅ **已提 PR [#7501](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7501)** —— 只加一个条目文件；`dsh.bundle` / 满 1 天 / topic `dsh-plugin` / `category: skill` 四项要求均满足。 |
+> | ③b 市场 PR（dsh-zspace） | ✅ **已提 PR [#7502](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7502)** —— 同一作者的另一个插件，按上游「一 PR 一条目」的主流形态单独开，未合并在同一 PR 里。 |
 >
 > 🔑 npm token 已存入 `~/.secrets/keys.env`（唯一真源，权限已收敛到仅本人、去继承），配套 `load.ps1` / `load.sh` 读取脚本已就位，用 `. $HOME\.secrets\load.ps1` 载入。**注意**：这一枚 token 已出现在对话记录里，建议尽快到 npm 设置 revoke，再新建一枚替换 `keys.env` 里的值。
 
@@ -17,10 +18,10 @@
 
 | 项 | 值 |
 |---|---|
-| npm 包名 | `dsh-video-pipeline`（已发布 0.1.0） |
-| 版本 | `0.1.1`（仅文档，待发布） |
-| GitHub 仓库 | `439436269-ctrl/dsh-video-pipeline`（目标，尚未创建） |
-| 市场条目文件 | `data/plugins/439436269-ctrl__dsh-video-pipeline.yml`（内容见 `publish/market-entry.yml`） |
+| npm 包名 | `dsh-video-pipeline`（已发布；`latest=0.1.1`） |
+| 版本 | `0.1.1`（已发布） |
+| GitHub 仓库 | [`439436269-ctrl/dsh-video-pipeline`](https://github.com/439436269-ctrl/dsh-video-pipeline)（已建，CI 绿） |
+| 市场条目文件 | `data/plugins/439436269-ctrl__dsh-video-pipeline.yml`（内容见 `publish/market-entry.yml`，PR [#7501](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7501)） |
 | 市场分类 | `skill` |
 | 署名 | `vfvrpq` / <https://github.com/439436269-ctrl> |
 
@@ -95,3 +96,14 @@ Remove-Item $rc                                             # 立刻删
 ```
 
 **加速点**：账号 `439436269-ctrl` 下**已经有 `awesome-dsh-plugin` 的 fork**（2026-10-11 实测），所以第 3 步可以跳过 fork，直接在已有 fork 上开分支写文件、再开 PR。作者另有 5 个已发布的 DSH 插件（`dsh-zspace` / `dsh-piano` / `dsh-scroll-piano` / `dsh-session-path` / `dsh-pinned-sessions`），发布流程已跑通过。
+
+## 市场 PR 实战要点（2026-10-16 实测，awesome-dsh-plugin）
+
+- **提交物只有一个文件**：`data/plugins/<owner>__<repo>.yml`；README 由脚本生成，**不许手改**。
+- 条目字段：`url`（必须与仓库完全一致）/ `name`（`owner/repo`）/ `category` / `description.en`（**唯一必填**，`zh` 可选）。
+  **含「冒号+空格」的值必须加引号**，否则 YAML 当成嵌套键；单引号内的单引号写成两个。
+- 四项硬门槛（`scripts/check-submission.mjs`）：仓库声明 `dsh.bundle`（**只有 `dsh.client` 会被拒**）、仓库满 1 天、仓库未归档、不是 DSH 自身或一方包的翻版；**无提交数门槛**。
+- 单 PR 最多 3 个条目；合并样本里 92% 是单条目 → 同一作者的多个插件**各开一个 PR** 更稳。
+- **先同步 fork 再开 PR**：`POST /repos/<fork>/merge-upstream`。fork 落后会触发 `pr-check` 的 stale-fork 守卫（PR 若删掉 >2 个既有条目即失败）。
+- 目录列举会被 GitHub API **截断在 1000 条**（市场条目远多于此）→ 判断「是否已收录」要按**精确路径**取文件，不能靠列目录。
+- CI 通过只是前置条件，维护者会真读仓库核对描述（含描述里的数字与 API 名）→ **描述只写能核实的**。
