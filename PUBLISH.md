@@ -7,8 +7,9 @@
 > | ① GitHub 建仓 + 推送 | ✅ **已完成** —— `439436269-ctrl/dsh-video-pipeline`，CI 绿；另建宿主中立仓 `video-pipeline-skills`（Claude Code / Codex）。 |
 > | ② npm 发布 0.1.0 | ✅ **已完成** —— shasum `7c40c1647b549b737c65497bb6b51c94d85ee1ff`（与本地打包逐字节一致）。详见 `VERIFY.md` 第 8 节。 |
 > | ②b npm 发布 0.1.1（仅文档） | ✅ **已发布** —— 目的是让 npm 页面显示含 skill 关系图的新 README；`latest=0.1.1`，逐字节回读一致（sha1 `4281b430…`）。 |
-> | ③ 市场 PR（本项目） | ✅ **已提 PR [#7501](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7501)** —— 只加一个条目文件；`dsh.bundle` / 满 1 天 / topic `dsh-plugin` / `category: skill` 四项要求均满足。 |
-> | ③b 市场 PR（dsh-zspace） | ✅ **已提 PR [#7502](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7502)** —— 同一作者的另一个插件，按上游「一 PR 一条目」的主流形态单独开，未合并在同一 PR 里。 |
+> | ③ 市场 PR（本项目） | ✅ **已提 PR [#7501](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7501)** —— 只加一个条目文件；`dsh.bundle` / 满 1 天 / topic `dsh-plugin` / `category: skill` 四项要求均满足。**CI 双绿**（`check` + `Submission gate`）、`mergeable=clean`，待人工评审。 |
+> | ③b 市场 PR（dsh-zspace） | ✅ **已提 PR [#7502](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/7502)** —— 同一作者的另一个插件，按上游「一 PR 一条目」的主流形态单独开，未合并在同一 PR 里；**同样双绿 + clean**。 |
+> | ③c 其余自制插件的市场 PR | ✅ **#7503 dsh-piano / #7504 dsh-scroll-piano / #7505 dsh-ai-arcade / #7506 dsh-peak-runner，以及既有 PR #6997 dsh-session-path —— 全部双绿 + clean，0 条打回意见**（2026-10-16 复核）。7 个 PR 的完整清单与教训见作者笔记 `~/Downloads/插件笔记.md`。 |
 >
 > 🔑 npm token 已存入 `~/.secrets/keys.env`（唯一真源，权限已收敛到仅本人、去继承），配套 `load.ps1` / `load.sh` 读取脚本已就位，用 `. $HOME\.secrets\load.ps1` 载入。**注意**：这一枚 token 已出现在对话记录里，建议尽快到 npm 设置 revoke，再新建一枚替换 `keys.env` 里的值。
 
