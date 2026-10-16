@@ -45,7 +45,7 @@
 
 | 用途 | 权威路径 | 实测状态 |
 |---|---|---|
-| skills 库（Agent 扫描、读写） | `%USERPROFILE%\.agents\skills` | ✅ **存在，复数**；本机 96 个 skill；`zspace-skills-sync` 的默认源就是它 |
+| skills 库（Agent 扫描、读写） | `%USERPROFILE%\.agents\skills` | ✅ **存在，复数**；`zspace-skills-sync` 的默认源就是它（条目数会变，别写死） |
 | `%USERPROFILE%\.agent\`（**单数**） | — | ❌ **不存在**；任何文档写单数都是错的 |
 | `%USERPROFILE%\.config\mimocode\skills\` | 旧 MiMo 根 | ⚠️ 只剩下一个 `agents.md`；**多个 skill 引用的 `.venvs/publish/Scripts/biliup.exe` 已不存在** |
 | `%USERPROFILE%\.dsh\skills\` | — | ❌ 不存在（DSH 不从这里读 skill） |
