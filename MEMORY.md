@@ -53,6 +53,24 @@
 
 结论：**读写 skill 只认 `%USERPROFILE%\.agents\skills`**（Windows）/ `~/.agents/skills`（macOS）；旧文档里的 `.config/mimocode/skills` 只在「历史沿革」意义上成立。
 
+### 市场投稿（awesome-dsh-plugin，2026-10-16 实测）
+
+- **投稿物只有一个文件**：`data/plugins/<owner>__<repo>.yml`；字段 `url` / `name` / `category` / `description.en`
+  （**只有 en 必填**，缺 zh 由维护者补）；值含「冒号+空格」**必须加引号**；**README 由脚本生成，不许手改**。
+- **四项硬门槛**（`scripts/check-submission.mjs`，由 `pr-gate.yml` 用带 token 的 API 实查）：声明 `dsh.bundle`
+  （**只声明 `dsh.client` 会被拒**）、仓库满 1 天、未归档、不是 DSH 自身或一方包翻版；**已无提交数门槛**。
+  CI 双绿（`check` + `Submission gate`）只是**前置条件**，仍要人工评审。
+- **判断「是否已收录」必须按精确路径取文件**（`contents/data/plugins/<owner>__<repo>.yml`）。
+  **目录列举会被 GitHub API 截断在 1000 条**，而市场条目远多于此 → 靠列目录得到的「没匹配到」是**假阴性**
+  （曾据此误判 dsh-zspace 未收录/已收录各一次）。
+- **开 PR 前先查重**：`GET /pulls?head=<owner>:<branch>`。同名分支已存在时，`PUT contents` 会**改写既有 PR 的内容**
+  ——2026-10-16 实测：`dsh-session-path` 已有 #6997，重复投稿触发 422，且误在既有 PR 上多加了一次描述改写，
+  最后还原原文。**不该给正在评审的 PR 塞无谓改动。**
+- **先 `POST /repos/<fork>/merge-upstream` 再开 PR**：上游 `pr-check` 有 **stale-fork 守卫**（PR 若删掉超过
+  2 个既有条目即失败），落后的 fork 会被误判成大删改。
+- 单 PR 上限 3 个条目，但**合并样本 92% 是单条目** → 同一作者的多个插件**各开一个 PR** 更稳。
+- 本次投稿的 PR 号与结果记在 `PUBLISH.md`；作者侧完整目录见其笔记 `~/Downloads/插件笔记.md`。
+
 ### 隐私与仓库
 
 - **`git add -A` 前必须审查文件清单**（2026-10-12 事故）：发布脚本的调试截图落到 `docs/` 被带进
